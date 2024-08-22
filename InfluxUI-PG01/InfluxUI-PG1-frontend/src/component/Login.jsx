@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
+import {Button,TextField,Typography,Box} from "@mui/material";
 import axios from "axios";
-
 function Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
@@ -31,12 +31,26 @@ function Login() {
     };
 
     return (
-        <div className="login-container">
-            <h2>Login</h2>
+        <Box
+            sx={{
+                width: '100%',
+                maxWidth: '400px',
+                margin: 'auto',
+                padding: 4,
+                backgroundColor: '#ffffff',
+                borderRadius: 2,
+                boxShadow: 3,
+                marginTop: '30px'
+            }}
+            className="login-container">
+            <Typography component="h1" variant="h5">
+                Sign in
+            </Typography>
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
-                    <label htmlFor="username">Username:</label>
-                    <input
+                    <TextField
+                        className="textFiled"
+                        label="username"
                         type="text"
                         id="username"
                         value={username}
@@ -45,8 +59,8 @@ function Login() {
                     />
                 </div>
                 <div className="form-group">
-                    <label htmlFor="password">Password:</label>
-                    <input
+                    <TextField
+                        label="password"
                         type="password"
                         id="password"
                         value={password}
@@ -54,9 +68,13 @@ function Login() {
                         required
                     />
                 </div>
-                <button type="submit">Login</button>
+                <Button variant="contained"
+                        sx={{
+                            marginTop: '30px'
+                        }}
+                        type="submit">Login</Button>
             </form>
-        </div>
+        </Box>
     );
 }
 

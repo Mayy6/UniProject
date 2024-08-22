@@ -25,6 +25,10 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String Authorization = request.getHeader("Authorization");
+        if (request.getRequestURL().indexOf("/api/login") >= 0) {
+            chain.doFilter(request, response);
+            return;
+        }
 
         String username = null;
         String jwt = null;
@@ -35,7 +39,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(jwt);
             } catch (Exception e) {
-//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT token");
                 return;
             }
         }
@@ -49,7 +53,7 @@ public class JwtFilter extends OncePerRequestFilter {
                 // set auth object to make it pass the auth filter
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-//                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid JWT token");
+                response.sendError(HttpServletResponse.SC_FORBIDDEN, "Invalid JWT token");
                 return;
             }
         }

@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from "axios";
+import {Button,TextField,Typography,Box} from "@mui/material";
 
 function Dashboard() {
     const handleSubmit = async (event) => {
@@ -28,10 +29,10 @@ function Dashboard() {
     };
     return (
         <div>
-            <h2>Dashboard</h2>
+            <Typography>Dashboard</Typography>
             <p>Welcome to the dashboard!</p>
             <form onSubmit={handleSubmit}>
-                <button>access to the api</button>
+                <Button variant="contained" type="submit">access to the api</Button>
             </form>
 
 
