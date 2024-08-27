@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from "axios";
 import {Button,TextField,Typography,Box} from "@mui/material";
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import "./Dashboard.css";
-
+import DragItem from './DragItem';
+import DropItem from './DropItem';
+import { useFetchedData } from './useFetchedData';
 
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
@@ -16,6 +20,81 @@ import {
 
 
 function Dashboard() {
+    const { buckets, measurements, fields, setBuckets, setMeasurements, setFields, initialBuckets, initialMeasurements, initialFields } = useFetchedData();
+
+    const [selectedBuckets, setSelectedBuckets] = useState([]);
+    const [selectedMeasurements, setSelectedMeasurements] = useState([]);
+    const [selectedFields, setSelectedFields] = useState([]);
+
+    //generate code based on fetched elements
+    const [generatedCode, setGeneratedCode] = useState("");
+
+    // Drag and Drop feature
+    const handleDrop = (type, item) => {
+        if (type === 'bucket') {
+            // Ensure the bucket is not already in the selected list
+            if (!selectedBuckets.includes(item.label)) {
+                setSelectedBuckets(prevBuckets => [...prevBuckets, item.label]);
+                setBuckets(prevBuckets => prevBuckets.filter(bucket => bucket !== item.label));
+            }
+        } else if (type === 'measurement') {
+            if (!selectedMeasurements.includes(item.label)) {
+                setSelectedMeasurements(prevMeasurements => [...prevMeasurements, item.label]);
+                setMeasurements(prevMeasurements => prevMeasurements.filter(measurement => measurement !== item.label));
+            }
+        } else if (type === 'field') {
+            if (!selectedFields.includes(item.label)) {
+                setSelectedFields(prevFields => [...prevFields, item.label]);
+                setFields(prevFields => prevFields.filter(field => field !== item.label));
+            }
+        }
+    };
+
+    // Clear All function
+    const clearAll = () => {
+        // Reset selected items and generated code
+        setSelectedBuckets([]);
+        setSelectedMeasurements([]);
+        setSelectedFields([]);
+        setGeneratedCode("");
+
+        //Reset data
+        setBuckets(initialBuckets);
+        setMeasurements(initialMeasurements);
+        setFields(initialFields);
+    }
+
+    // Function to update the generated code
+    useEffect(() => {
+        const updateGeneratedCode = () => {
+            let code = "";
+            if (selectedBuckets && selectedBuckets.length > 0) {
+                selectedBuckets.forEach(bucket => {
+                    code += `from(bucket: "${bucket}")\n`;
+                });
+            }
+            // Code for time range
+            // code += "    |> range(start: -1h)\n";
+
+            if (selectedMeasurements && selectedMeasurements.length > 0) {
+                selectedMeasurements.forEach(measurement => {
+                    code += `    |> filter(fn: (r) => r._measurement == "${measurement}")\n`;
+                });
+            }
+
+            if (selectedFields && selectedFields.length > 0) {
+                selectedFields.forEach(field => {
+                    code += `    |> filter(fn: (r) => r._field == "${field}")\n`;
+                });
+            }
+
+            setGeneratedCode(code);
+        };
+
+        updateGeneratedCode();
+
+    }, [selectedBuckets, selectedMeasurements, selectedFields]);
+
     const handleSubmit = async (event) => {
         event.preventDefault();
         // console.log('Username:', username);
@@ -40,7 +119,9 @@ function Dashboard() {
 
         }
     };
+
     return (
+        <DndProvider backend={HTML5Backend}>
         <div className="dashsoard-container">
 
       <div className="column-box">
@@ -53,6 +134,9 @@ function Dashboard() {
                 <input className="input-el" type="text" placeholder="Search" />
                 <SearchOutlined sx={{ fontSize: 20 }} />
             </div>
+            {buckets.map((bucket, index) => (
+                            <DragItem key={bucket} type="bucket" label={bucket} />
+                        ))}
         </div>
 
         <div className="filter-box">
@@ -64,6 +148,9 @@ function Dashboard() {
                 <input className="input-el" type="text" placeholder="Search" />
                 <SearchOutlined sx={{ fontSize: 20 }} />
             </div>
+            {measurements.map((measurement, index) => (
+                            <DragItem key={measurement} type="measurement" label={measurement} />
+                        ))}
         </div>
 
         <div className="filter-box">
@@ -75,23 +162,34 @@ function Dashboard() {
                 <input className="input-el" type="text" placeholder="Search" />
                 <SearchOutlined sx={{ fontSize: 20 }} />
             </div>
+            {fields.map((field, index) => (
+                            <DragItem key={field} type="field" label={field} />
+                        ))}
         </div>
 
       </div>
 
       <div className="column-box">
-        
+      
         <div className="filter-box">
             <div className="filter-title">
                 <AccountBalanceOutlined sx={{ fontSize: 20 }} />
                 <span className="filter-title-text">Selected Buckests</span>
             </div>
+           
             <div className="search-input">
                 <input className="input-el" type="text" placeholder="Search" />
                 <SearchOutlined sx={{ fontSize: 20 }} />
             </div>
+            <DropItem acceptType="bucket" onDrop={(item) => handleDrop('bucket', item)}>
+            {selectedBuckets.map((bucket, index) => (
+                                <div key={index}>{bucket}</div>
+                            ))}
+            </DropItem>
         </div>
+        
 
+        
         <div className="filter-box">
             <div className="filter-title">
                 <AccountBalanceOutlined sx={{ fontSize: 20 }} />
@@ -101,8 +199,14 @@ function Dashboard() {
                 <input className="input-el" type="text" placeholder="Search" />
                 <SearchOutlined sx={{ fontSize: 20 }} />
             </div>
+            <DropItem acceptType="measurement" onDrop={(item) => handleDrop('measurement', item)}>
+            {selectedMeasurements.map((measurement, index) => (
+                                <div key={index}>{measurement}</div>
+                            ))}
+            </DropItem>
         </div>
 
+        
         <div className="filter-box">
             <div className="filter-title">
                 <AccountBalanceOutlined sx={{ fontSize: 20 }} />
@@ -112,6 +216,11 @@ function Dashboard() {
                 <input className="input-el" type="text" placeholder="Search" />
                 <SearchOutlined sx={{ fontSize: 20 }} />
             </div>
+            <DropItem acceptType="field" onDrop={(item) => handleDrop('field', item)}>
+            {selectedFields.map((field, index) => (
+                                <div key={index}>{field}</div>
+                            ))}
+            </DropItem>
         </div>
 
 
@@ -120,17 +229,15 @@ function Dashboard() {
       <div className="column-box" style={{width: "40%"}}>
         
         <div className="main-iner-box" style={{height: "50%", marginTop: "5px"}}>
-            <textarea className="text-area" placeholder="Write your query here" ></textarea>
+            <textarea className="text-area" placeholder="Write your query here" value={generatedCode} readOnly></textarea>
             <div className="btn-box">
-                <Button variant="contained" color="error" style={{margin: "0 5px"}}>Clear All</Button>
-                <Button variant="contained" style={{margin: "0 5px"}}>Copy Cpde</Button>
+                <Button variant="contained" color="error" style={{margin: "0 5px"}} onClick={clearAll}>Clear All</Button>
+                <Button variant="contained" style={{margin: "0 5px"}}>Copy Code</Button>
                 <Button variant="contained" color="success" style={{margin: "0 5px"}}>Run Query</Button>
             </div>
         </div>
         
         <div className="main-iner-box" style={{height: "40%"}}>
-
-
             <div className="main-iner-title-box">
                 <div className="filter-title">
                     <AccountBalanceOutlined sx={{ fontSize: 20 }} />
@@ -179,6 +286,7 @@ function Dashboard() {
       </div>
 
     </div>
+    </DndProvider>
     );
 }
 
