@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import Login from './component/Login.jsx'
 import Dashboard from './component/Dashboard.jsx';
 import {Typography} from "@mui/material";
+import Header from './component/Header/Header.jsx';
 
 function App() {
   
