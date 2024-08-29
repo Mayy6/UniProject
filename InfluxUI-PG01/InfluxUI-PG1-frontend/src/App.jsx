@@ -5,11 +5,14 @@ import Login from './component/Login.jsx'
 import Dashboard from './component/Dashboard.jsx';
 import {Typography} from "@mui/material";
 import Header from './component/Header/Header.jsx';
+import { HdrWeak } from '@mui/icons-material';
 
 function App() {
   
 
     return (
+        <>
+        <Header />
       <Router>
             <div className="App">
                 <Typography component="h1" variant="h2"
@@ -27,6 +30,7 @@ function App() {
                 </Routes>
             </div>
         </Router>
+        </>
     )
   }
   

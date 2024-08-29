@@ -5,7 +5,7 @@ function Header() {
 
   return (
     <div className="header-container">
-      <div className="title-box">NoCode InfluxDB</div>
+      <div className="title-box"></div>
 
       <div className="login-box">
         <Button className="login-btn" variant="outlined">LogIn</Button>

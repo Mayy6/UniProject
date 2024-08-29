@@ -1,21 +1,24 @@
-.dashsoard-container {
+.dashboard-container {
     width: 100%;
     display: flex;
     justify-content: center;
     align-items: flex-start;
     height: calc(100vh - 150px);
+    padding: 10px;
+    box-sizing: border-box;
 }
 
-.column-box {
+.user-box, .column-box, .time-box {
     width: 20%;
     height: 100%;
     margin: 5px;
     padding: 10px;
     /* border: 1px solid #3f3f3f; */
+    box-sizing: border-box;
 }
 
 .filter-box {
-    height: 30%;
+    height: 25%;
     border: 1px solid #3f3f3f;
     padding: 5px 10px;
     margin: 5px;
@@ -34,8 +37,6 @@
 }
 
 .search-input {
-    width: 70%;
-    
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -47,7 +48,7 @@
     border: none;
 }
 
-.main-iner-box {
+.main-iner-box, .graph-box {
     width: 100%;
     border: 1px solid #3f3f3f;
     border-radius: 10px;
