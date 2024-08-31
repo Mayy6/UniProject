@@ -43,13 +43,16 @@ function Login() {
                     if (response.status === 200) {
                         const token = response.data.jwt;
                         localStorage.setItem('token', token);
-                        alert('Login successful');
-                        window.location.href = '/dashboard'
+                        console.log("Login successful");
+                        setSuccessMessage("Login successful!");
+                        setErrorMessage("");
+                        // alert('Login successful');
+                        // window.location.href = '/dashboard'
                     }
                 })
         } catch (error) {
-            alert('Login failed');
-            console.error('Login failed', error);
+            setErrorMessage("Incorrect username or password");
+            setSuccessMessage("");
 
         }
     };
@@ -87,7 +90,7 @@ function Login() {
                     </Typography>
                     <Card sx={{ mt: 3, boxShadow: 5 }}>
                         <CardContent>
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={handleSubmit_back}>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
