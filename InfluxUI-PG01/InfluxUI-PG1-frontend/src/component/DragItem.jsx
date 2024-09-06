@@ -1,33 +1,40 @@
-import React from "react";
-import { useDrag } from "react-dnd";
-import Button from "@mui/material/Button";
-import Box from "@mui/material/Box";
+import React from 'react';
+import { useDrag } from 'react-dnd';
+import { Chip } from '@mui/material';
 
-export default function DragItem({ type, label }) {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type,
-    item: { label },
+const DragItem = ({ label, type, onDragStart, allowedDropEffect }) => {
+  const [{ isDragging }, drag] = useDrag({
+    type: type,
+    item: { label, allowedDropEffect },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
-  }));
+    begin: onDragStart,
+  });
 
   return (
-    <Box
+    <div
       ref={drag}
-      sx={{
-        margin: '4px',
+      style={{
+        opacity: isDragging ? 0.5 : 1,
+        cursor: 'move',
+        margin: '5px',
+        width: '50%',
       }}
     >
-      <Button
-        variant="contained"
-        sx={{ 
-          opacity: isDragging ? 0.5 : 1,
-          display: "block",
-          cursor: "move" }}
-      >
-        {label}
-      </Button>
-    </Box>
+      <Chip
+        label={label}
+        style={{
+          backgroundColor: isDragging ? '#e0e0e0' : '#f1f1f1',
+          border: '1px solid #ccc',
+          cursor: 'move',
+          maxWidth: '200px', 
+          minWidth: '50px', 
+          whiteSpace: 'nowrap', 
+        }}
+      />
+    </div>
   );
-}
+};
+
+export default DragItem;

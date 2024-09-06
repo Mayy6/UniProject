@@ -1,0 +1,6 @@
+{
+  
+  "_measurement": ["factory", "home", "office"],
+  "room": ["Production Room", "Living Room"],
+  "_field": ["co", "hum", "tem"]
+}
