@@ -124,6 +124,7 @@ class InfluxUiPg1ApplicationTests {
                 "  \"overwrite\": false\n" +
                 "}\n";
 
+        // use HttpClient here, maybe change later
         HttpClient client = HttpClient.newHttpClient();
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -132,7 +133,7 @@ class InfluxUiPg1ApplicationTests {
                 .POST(HttpRequest.BodyPublishers.ofString(dashboardJson))
                 .build();
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-        System.out.println(response.body()); // Output the response (which contains dashboard ID and URL)
+        System.out.println(response.body());
 
     }
 
