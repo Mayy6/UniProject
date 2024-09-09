@@ -4,6 +4,7 @@ import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.QueryApi;
 import com.influxdb.client.WriteApiBlocking;
+import com.influxdb.client.domain.Bucket;
 import com.influxdb.client.write.Point;
 import com.influxdb.exceptions.UnauthorizedException;
 import com.influxdb.query.FluxRecord;
@@ -11,26 +12,38 @@ import com.influxdb.query.FluxTable;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.util.List;
 
 @SpringBootTest
 class InfluxUiPg1ApplicationTests {
 
-    @Test
+//    @Test
     void contextLoads() {
     }
-    @Test
-    void dbTest() {
+//    @Test
+    void dbTestInfluxDB() {
 
         String hostUrl = "http://localhost:8086";
 //        char[] authToken = "ibO8x79tme6okjKnbDv9qg4G_hx3Vk4c_WYHa8g-SmBQyO0XnjgIVdTQsqdYYIaxFko_c5fp7wWE51bt0NxphQ==".toCharArray();
 
-        try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, "yuanyinkai","yuanyinkai122223".toCharArray())) {
+
+        try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, "yuanyinkai","yuanyinkai123".toCharArray())) {
 //        try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, authToken)) {
             String bucket = "sepBucket";
             String org = "sepOrg";
 
+
+            // 查询所有buckets
+            List<Bucket> buckets = client.getBucketsApi().findBuckets();
+            for (Bucket bucket1 : buckets) {
+                System.out.println(bucket1.getName());
+            }
             Point[] points = new Point[] {
                     Point.measurement("census")
                             .addTag("location", "Klamath")
@@ -66,7 +79,8 @@ class InfluxUiPg1ApplicationTests {
                 String query = "from(bucket: \"sepBucket\")" +
                         " |> range(start: -10m)";
 
-                for (FluxTable table : queryApi.query(query, org)) {
+                List<FluxTable> query1 = queryApi.query(query, org);
+                for (FluxTable table : query1) {
                     List<FluxRecord> records = table.getRecords();
                     for (FluxRecord record : records) {
                         String field = record.getField();
@@ -85,5 +99,44 @@ class InfluxUiPg1ApplicationTests {
         }
 
     }
+
+    @Test
+    void doGrafanaTest() throws IOException, InterruptedException {
+        String key = "glsa_5QMUc3z3baWouJLLCUpYoDL33emwCn9r_eaeefa7b";
+        String url = "http://localhost:3131/api/dashboards/db";
+        String dashboardJson = "{" +
+                "  \"dashboard\": {\n" +
+                "    \"title\": \"sepTestPostMan123\",\n" +
+                "    \"panels\": [{\n" +
+                "      \"type\": \"graph\",\n" +
+                "      \"title\": \"Test Panel\",\n" +
+                "      \"datasource\": \"InfluxDB-1\",\n" +
+                "      \"targets\": [{\n" +
+                "        \"query\": \"from(bucket: \\\"sepBucket\\\") |> range(start: -3h) |> filter(fn: (r) => r._measurement == \\\"census\\\")\",\n" +
+                "        \"type\": \"flux\"\n" +
+                "      }],\n" +
+                "      \"gridPos\": {\"x\": 0, \"y\": 0, \"w\": 24, \"h\": 8}\n" +
+                "    }],\n" +
+                "    \"schemaVersion\": 30,\n" +
+                "    \"version\": 1\n" +
+                "  },\n" +
+                "  \"folderId\": 0,\n" +
+                "  \"overwrite\": false\n" +
+                "}\n";
+
+        // use HttpClient here, maybe change later
+        HttpClient client = HttpClient.newHttpClient();
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Authorization", "Bearer " + key)
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(dashboardJson))
+                .build();
+        HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        System.out.println(response.body());
+
+    }
+
+
 
 }
