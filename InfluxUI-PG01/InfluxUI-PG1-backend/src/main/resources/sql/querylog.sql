@@ -14,9 +14,9 @@ CREATE TABLE IF NOT EXISTS public.query_log
     query_duration character varying(255) COLLATE pg_catalog."default",
     result_status character varying(255) COLLATE pg_catalog."default",
     result_count character varying(255) COLLATE pg_catalog."default"
-)
 
-TABLESPACE pg_default;
+)
+    TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.query_log
     OWNER to postgres;
