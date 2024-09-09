@@ -18,8 +18,8 @@ import java.util.Objects;
 @RequestMapping("/api")
 public class ApiController {
     private List<User> testUsers = Arrays.asList(
-            new User("777", "yuanyinkai"),
-            new User("777", "yyk")
+            new User("777", "yuanyinkai", "123456", "1234@xxx.com", "admin"),
+            new User("777", "yyk","123456", "1234@xxx.com", "admin")
     );
 
     @Autowired
@@ -49,6 +49,21 @@ public class ApiController {
         }
         String token = jwtTokenUtil.generateToken(username);
         return ResponseEntity.ok(new AuthResponse(token));
+    }
+
+    @PostMapping("/query")
+    public String logQuery(
+            @RequestParam String username,
+            @RequestParam String query,
+            @RequestParam String bucket,
+            @RequestParam String measurement,
+            @RequestParam String field,
+            @RequestParam(required = false) String filter) {
+
+        // Log the query
+        apiService.logQuery(username, query, bucket, measurement, field, filter);
+
+        return "Query logged successfully";
     }
 
     @GetMapping("/selectUser")
