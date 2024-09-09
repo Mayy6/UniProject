@@ -41,7 +41,11 @@ public class ApiController {
         return "first message";
     }
 
-
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
+        apiService.registerUser(user);
+        return ResponseEntity.ok("User registered successfully");
+    }
 
 
     @PostMapping("/login")

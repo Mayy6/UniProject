@@ -22,7 +22,7 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();  // 使用BCrypt加密
+        return new BCryptPasswordEncoder();  // Use BCrypt encoder
     }
 
     @Bean

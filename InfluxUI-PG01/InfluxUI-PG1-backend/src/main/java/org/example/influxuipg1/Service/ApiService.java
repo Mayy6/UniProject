@@ -39,12 +39,12 @@ public class ApiService {
         return false;
     }
 
-    public void registerUser(String username, String password, String email, String role) {
-        User user = new User();
-        user.setName(username);
-        user.setPassword(passwordEncoder.encode(password)); // 加密密码
-        user.setEmail(email);
-        user.setRole(role);
+    public void registerUser(User user) {
+
+        user.setId(UUID.randomUUID().toString());  // set unique id
+        user.setPassword(passwordEncoder.encode(user.getPassword()));  // Encryption password
+        user.setEmail(user.getEmail());
+        user.setRole(user.getRole());
         userRepository.save(user);
     }
 
