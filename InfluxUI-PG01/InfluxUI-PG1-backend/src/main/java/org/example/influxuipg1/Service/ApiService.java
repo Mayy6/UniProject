@@ -5,6 +5,7 @@ import org.example.influxuipg1.Model.User;
 import org.example.influxuipg1.Repository.QueryLogRepository;
 import org.example.influxuipg1.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -51,7 +52,15 @@ public class ApiService {
     public void logQuery(String userId, String bucket, String measurement, String fields, String tags, String queryDuration, String result_status, String filter) {
         QueryLog queryLog = new QueryLog();
         queryLog.setId(UUID.randomUUID().toString()); // generate unique id
-        queryLog.setUserId(userId);
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // find user according to userid
+        User user = userRepository.findByName(username);
+        if (user != null) {
+            // set id as user_id in query
+            queryLog.setUserId(user.getId());
+        }
+//        queryLog.setUserId(userId);
         queryLog.setBucket(bucket);
         queryLog.setMeasurement(measurement);
         if(fields != null) {
@@ -71,6 +80,7 @@ public class ApiService {
         System.out.println("Saving query log with userId: " + userId + ", bucket: " + bucket + ", measurement: " + measurement);
 
     }
+
 
 
 }

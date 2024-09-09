@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS public.app_user
     CONSTRAINT app_user_pkey PRIMARY KEY (id)
 )
 
-TABLESPACE pg_default;
+    TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.app_user
     OWNER to sep;

@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import org.example.influxuipg1.InfluxdbRepository.InfluxdbRepository;
 import org.example.influxuipg1.Model.AuthRequest;
 import org.example.influxuipg1.Model.AuthResponse;
+import org.example.influxuipg1.Model.QueryLog;
 import org.example.influxuipg1.Model.User;
 import org.example.influxuipg1.Service.ApiService;
 import org.example.influxuipg1.Util.JwtTokenUtil;
@@ -61,6 +62,8 @@ public class ApiController {
         String token = jwtTokenUtil.generateToken(username);
         return ResponseEntity.ok(new AuthResponse(token));
     }
+
+
 
     @PostMapping("/query")
     public String logQuery(
