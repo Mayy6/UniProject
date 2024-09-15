@@ -10,11 +10,10 @@ const Dashboard = () => {
     <DndProvider backend={HTML5Backend}>
       <Box style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
         
-        {/* Query Tab Manager (Left) */}
+        {/* Query Tab Manager (Left - 40%) */}
         <Box 
           style={{ 
-            // flexBasis: '40%', 
-            width: '450px',
+            flexBasis: '35%',  // 占40%的宽度
             padding: '10px', 
             borderRight: '1px solid #ccc', 
             overflowY: 'auto' 
@@ -22,7 +21,15 @@ const Dashboard = () => {
         >
           <QueryTabManager />
         </Box>
-        <Box style={{ flexBasis: '65%', borderRight: '1px solid #ccc', }}>
+
+        {/* Graph Display Area (Right - 60%) */}
+        <Box 
+          style={{ 
+            flexBasis: '65%',  // 占60%的宽度
+            padding: '10px',
+            overflowY: 'auto'
+          }}
+        >
           <GraphDisplayArea />
         </Box>
       </Box>

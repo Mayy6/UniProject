@@ -25,9 +25,11 @@ const DropZone = ({ acceptType, onDrop, allowedDropEffect, children }) => {
         flexDirection: 'column',
         minHeight: '10px',
         backgroundColor: isOver && canDrop ? '#f0f0f0' : '#f1f1f1',
-        padding: '10px',
-        border: '1px dashed #ccc',
-        borderRadius: '4px',
+        padding: '0px',
+        border: '2px solid rgba(0, 0, 0, 0.2)',
+        borderRadius: '8px',
+        boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', 
+
       }}
     >
       {children}

@@ -17,7 +17,7 @@ const DatasetSection = ({
   };
 
   return (
-    <Box>
+    <Box sx={{ padding: '10px' }}>
       {/* Bucket Selection */}
       {loadingBuckets && <Typography>Loading buckets...</Typography>}
       {bucketError && <Typography color="error">Error loading bucket list</Typography>}
@@ -30,7 +30,7 @@ const DatasetSection = ({
           value={selectedBucket || ''}
           onChange={handleBucketChange}
           variant="outlined"
-          style={{ marginBottom: '20px' }}
+          sx={{ marginBottom: '20px' }}
         >
           {bucketList.buckets.map((bucket, index) => (
             <MenuItem key={index} value={bucket}>
@@ -46,19 +46,22 @@ const DatasetSection = ({
       {bucketData && (
         <Box>
           {Object.keys(bucketData).map((key) => (
-            <Box key={key} style={{ marginBottom: '20px' }}>
-              <Typography variant="body1">
-                <strong>{key}</strong>
+            <Box key={key} sx={{ marginBottom: '20px' }}>
+              <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                {key}
               </Typography>
               <Box
-                style={{
+                sx={{
                   height: '150px',
                   padding: '10px',
-                  border: '1px dashed #ccc',
+                  border: '2px solid rgba(0, 0, 0, 0.2)', // 加粗边框并使用稍深的颜色
                   display: 'flex',
                   flexWrap: 'wrap',
                   overflowY: 'auto',
-                  gap: "0px",
+                  gap: '8px',
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // 保持柔和的阴影效果
+                  borderRadius: '8px', // 添加圆角
+                  backgroundColor: '#f5f7fa', // 使用柔和的浅灰蓝色背景
                 }}
               >
                 {Array.isArray(bucketData[key]) ? (

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { Box } from '@mui/material';
-import QueryTab from './QueryTab';
+import { Box, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import QueryBuilder from './QueryBuilder';
 import AddQuery from './AddQuery';
 
@@ -32,14 +31,14 @@ const QueryTabManager = () => {
     setQueryBuilders(newBuilders);
 
     if (newBuilders.length > 0) {
-      setActiveQuery(newBuilders[newBuilders.length - 1].id);
+      setActiveQuery(newBuilders[newBuilders.length -1].id);
     } else {
       setActiveQuery(null);
     }
   };
 
-  const handleToggle = (id) => {
-    setActiveQuery(id);
+  const handleToggle = (event) => {
+    setActiveQuery(event.target.value);
   };
 
   const handleFilterChange = (id, key, value) => {
@@ -86,29 +85,36 @@ const QueryTabManager = () => {
 
   return (
     <Box style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-      {/* Query Tabs */}
       <Box
         style={{
           display: 'flex',
-          padding: '10px',
+          padding: '15px',
           alignItems: 'center',
           borderBottom: '1px solid #ccc',
           overflowX: 'auto',
         }}
       >
-        {queryBuilders.map((builder, index) => (
-          <QueryTab
-            key={builder.id}
-            label={`Query ${index + 1}`}
-            isActive={activeQuery === builder.id}
-            onClick={() => handleToggle(builder.id)}
-            onDelete={() => handleRemoveQueryBuilder(builder.id)}
-          />
-        ))}
-        <AddQuery onAdd={handleAddQueryBuilder} />
+        <FormControl fullWidth>
+          <InputLabel id="select-query-label">Select Query</InputLabel>
+          <Select
+            labelId="select-query-label"
+            value={activeQuery}
+            onChange={handleToggle}
+            label="Select Query"
+          >
+            {queryBuilders.map((builder, index) => (
+              <MenuItem key={builder.id} value={builder.id}>
+                Query {index + 1}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <div style={{ minWidth: '90px', marginLeft: '10px' }}>
+          <AddQuery onAdd={handleAddQueryBuilder} hasTabs={queryBuilders.length > 0} />
+        </div>
       </Box>
 
-      {/* Active QueryBuilder */}
       <Box style={{ padding: '10px', flexGrow: 1 }}>
         {queryBuilders.map(
           (builder) =>

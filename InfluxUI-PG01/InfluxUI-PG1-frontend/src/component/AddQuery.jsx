@@ -6,21 +6,27 @@ const AddQuery = ({ onAdd }) => {
   return (
     <Button
       onClick={onAdd}
-      variant="contained"
+      variant="outlined"
       size="small"
       style={{
-        alignSelf: "flex-start",
-        marginTop: "10px",
+        marginRight: "8px",
+        backgroundColor: "#B3ECFF", 
+        color: "#5f6368",
         display: "flex",
         alignItems: "center",
-        backgroundColor: '#1976d2',
-        color: '#fff',
-        textTransform: 'none',
-        padding: '6px 6px',
+        padding: "5px 10px",
+        textTransform: "none",
+        borderRadius: "8px", 
+        border: "1px solid #ccc", 
+        minWidth: "90px", 
+        maxWidth: "90px",
+        height: "21px", 
+        boxShadow: "none", 
+        transition: "all 0.3s ease",
       }}
       startIcon={<AddIcon />}
     >
-      New Query
+      New
     </Button>
   );
 };

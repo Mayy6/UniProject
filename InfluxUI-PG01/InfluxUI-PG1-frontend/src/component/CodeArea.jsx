@@ -1,12 +1,23 @@
-// CodeArea.jsx
 import React from 'react';
-import { Box } from '@mui/material';
+import { useFluxQuery } from '../FluxQueryContext';
 
-const CodeArea = ({ generatedCode }) => {
+const CodeArea = () => {
+  const { fluxQuery } = useFluxQuery(); 
   return (
-    <Box style={{ padding: '10px', backgroundColor: '#f5f5f5', border: '1px solid #ccc', borderRadius: '4px', overflowY: 'auto' }}>
-      <pre>{generatedCode}</pre>
-    </Box>
+    <div>
+      <textarea
+        value={fluxQuery}
+        rows={10}
+        cols={50}
+        style={{
+          marginTop: '20px',
+          width: '100%',
+          height: '100%', 
+          whiteSpace: 'pre-wrap',
+          overflowWrap: 'break-word',
+        }}
+      />
+    </div>
   );
 };
 

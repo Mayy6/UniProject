@@ -15,10 +15,8 @@ const QueryBuilder = ({
   selectedBucket,
   setSelectedBucket,
 }) => {
-  // Fetch all bucket names from buckets.json file
   const { data: bucketList, loading: loadingBuckets, error: bucketError } = useFetchData('/dataset/buckets.json');
 
-  // Fetch metadata for the selected bucket
   const { data: bucketData, loading: loadingMetadata, error: metadataError } = useFetchData(
     selectedBucket ? `/dataset/${selectedBucket}.json` : null
   );
@@ -26,15 +24,15 @@ const QueryBuilder = ({
   return (
     <Box
       style={{
-        marginBottom: '10px',
+        marginBottom: '5px',
         border: '1px solid #ccc',
-        borderRadius: '8px',
+        borderRadius: '4px',
         padding: '10px',
         display: 'flex',
         flexDirection: 'column',
-        width: '90%',
-        marginLeft: '20px',
-        marginRight: '20px',
+        width: '95%',
+        marginLeft: '0px',
+        marginRight: '10px',
       }}
     >
       <Box display="flex" alignItems="center" justifyContent="space-between">
@@ -47,7 +45,7 @@ const QueryBuilder = ({
       </Box>
 
       <Box display="flex" flexDirection="row" width="100%" marginTop="10px">
-        <Box style={{ width: '45%', paddingRight: '10px' }}>
+        <Box style={{ width: '50%', paddingRight: '10px' }}>
           <DatasetSection
             bucketList={bucketList}
             loadingBuckets={loadingBuckets}
@@ -59,7 +57,7 @@ const QueryBuilder = ({
             metadataError={metadataError}
           />
         </Box>
-        <Box style={{ width: '45%' }}>
+        <Box style={{ width: '50%' }}>
           <FilterSection
             selectedFilters={filters}
             onDrop={onDrop}

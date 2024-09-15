@@ -1,38 +1,27 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
-import Login from './component/Login.jsx'
+import Login from './component/Login.jsx';
 import Dashboard from './component/Dashboard.jsx';
-import {Typography} from "@mui/material";
 import Header from './component/Header/Header.jsx';
-import { HdrWeak } from '@mui/icons-material';
+import { FluxQueryProvider } from './FluxQueryContext';  // 引入Context Provider
 
 function App() {
-  
-
     return (
-        <>
-        <Header />
-      <Router>
-            <div className="App">
-                <Typography component="h1" variant="h2"
-                            sx={{
-                                backgroundImage: 'linear-gradient(13.54deg, rgba(0, 163, 255, 0.1) 36.27%, rgba(0, 163, 255, 0.25) 78.76%, rgba(0, 163, 255, 0.15) 100%)',
-                                backgroundColor: '#07070e',
-                                color: '#15eafd',
-                                padding: 1,
-                            }}>
-                    InfluxUI-PG01
-                </Typography>
-                <Routes>
-                    <Route path="/" element={<Login />} />
-                    <Route path="/dashboard"  element={<Dashboard />} />
-                </Routes>
-            </div>
-        </Router>
-        </>
-    )
-  }
-  
-  export default App;
-  
+        <FluxQueryProvider>  {/* 包裹整个应用 */}
+            <>
+                <Header />
+                <Router>
+                    <div className="App" style={{ paddingTop: '60px' }}>
+                        <Routes>
+                            <Route path="/" element={<Login />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
+                        </Routes>
+                    </div>
+                </Router>
+            </>
+        </FluxQueryProvider>
+    );
+}
+
+export default App;
