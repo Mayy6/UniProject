@@ -82,6 +82,55 @@ public class ApiController {
     public ResponseEntity<User> selectUser() {
         return ResponseEntity.ok(apiService.selectUserById("777"));
     }
+
+    // Get all users
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(testUsers);  // Return all users
+    }
+
+    // Get a specific user by ID
+    @GetMapping("/user/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
+        for (User user : testUsers) {
+            if (user.getId().equals(id)) {
+                return ResponseEntity.ok(user);  // Return the user if found
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return 404 if user is not found
+    }
+
+    // Update a user's information
+    @PutMapping("/user/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User updatedUser) {
+        for (User user : testUsers) {
+            if (user.getId().equals(id)) {
+                // Update user fields with the new values
+                user.setName(updatedUser.getName());
+                user.setPassword(updatedUser.getPassword());
+                user.setEmail(updatedUser.getEmail());
+                user.setRole(updatedUser.getRole());
+                return ResponseEntity.ok(user);  // Return the updated user information
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return 404 if user is not found
+    }
+
+    // Delete a user by ID
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable String id) {
+        for (Iterator<User> iterator = testUsers.iterator(); iterator.hasNext(); ) {
+            User user = iterator.next();
+            if (user.getId().equals(id)) {
+                iterator.remove();  // Remove the user from the list
+                return ResponseEntity.ok("User deleted successfully");  // Return success message
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return 404 if user is not found
+    }
+
+
+    
     @GetMapping("/bucket")
     public ResponseEntity<List<String>> getBuckets() {
         InfluxDBClient client = influxdbRepository.getInfluxDBClient();
