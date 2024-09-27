@@ -8,26 +8,23 @@ import {
     Card,
     CardContent,
     Avatar,
+    Snackbar,
     Alert,
-    FormControlLabel,
-    Checkbox,
     createTheme,
     ThemeProvider
 } from '@mui/material';
-import axios from "axios";
 import PersonIcon from '@mui/icons-material/Person';
-import { enUS } from '@mui/material/locale';
+import { useNavigate } from 'react-router-dom';
 import userData from '../users.json';
-const theme = createTheme({}, enUS);
 
-
+const theme = createTheme({});
 
 function Login() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [showPassword, setShowPassword] = useState(false);
     const [errorMessage, setErrorMessage] = useState("");
-    const [successMessage, setSuccessMessage] = useState("");
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit_back = async (event) => {
         event.preventDefault();
@@ -43,29 +40,37 @@ function Login() {
                     if (response.status === 200) {
                         const token = response.data.jwt;
                         localStorage.setItem('token', token);
-                        alert('Login successful');
-                        window.location.href = '/dashboard'
+                        console.log("Login successful");
+                        setSuccessMessage("Login successful!");
+                        setErrorMessage("");
+                        // alert('Login successful');
+                        // window.location.href = '/dashboard'
                     }
                 })
         } catch (error) {
-            alert('Login failed');
-            console.error('Login failed', error);
+            setErrorMessage("Incorrect username or password");
+            setSuccessMessage("");
 
         }
     };
     const handleSubmit = (e) => {
         e.preventDefault();
-
         const user = userData.users.find(u => u.username === username.trim() && u.password === password);
 
         if (user) {
             console.log("Login successful");
-            setSuccessMessage("Login successful!");
             setErrorMessage("");
+            setOpenSnackbar(true);
+            setTimeout(() => {
+                navigate('/dashboard');
+            }, 1000);
         } else {
             setErrorMessage("Incorrect username or password");
-            setSuccessMessage("");
         }
+    };
+
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false);
     };
 
     return (
@@ -87,7 +92,7 @@ function Login() {
                     </Typography>
                     <Card sx={{ mt: 3, boxShadow: 5 }}>
                         <CardContent>
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={handleSubmit_back}>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
@@ -108,30 +113,15 @@ function Login() {
                                     fullWidth
                                     name="password"
                                     label="Password"
-                                    type={showPassword ? 'text' : 'password'}
+                                    type="password"
                                     id="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     autoComplete="current-password"
                                 />
-                                <FormControlLabel
-                                    control={
-                                        <Checkbox
-                                            checked={showPassword}
-                                            onChange={() => setShowPassword(!showPassword)}
-                                            color="primary"
-                                        />
-                                    }
-                                    label="Show password"
-                                />
                                 {errorMessage && (
                                     <Alert severity="error" sx={{ mt: 2 }}>
                                         {errorMessage}
-                                    </Alert>
-                                )}
-                                {successMessage && (
-                                    <Alert severity="success" sx={{ mt: 2 }}>
-                                        {successMessage}
                                     </Alert>
                                 )}
                                 <Button
@@ -147,6 +137,36 @@ function Login() {
                         </CardContent>
                     </Card>
                 </Box>
+
+                <Snackbar
+                    open={openSnackbar}
+                    autoHideDuration={2000}
+                    onClose={handleCloseSnackbar}
+                    anchorOrigin={{ vertical: 'center', horizontal: 'center' }}
+                    sx={{
+                        position: 'fixed',
+                        top: 'calc(50% - 400px)',
+                        left: '50%',
+                        transform: 'translate(-50%, -50%)',
+                        width: '250px', 
+                        fontSize: '1.0rem',
+                        textAlign: 'center',
+                        padding: '16px',
+                    }}
+                >
+                    <Alert
+                        onClose={handleCloseSnackbar}
+                        severity="success"
+                        sx={{
+                            width: '100%',
+                            fontSize: '1.0rem',
+                            textAlign: 'center',
+                            padding: '16px',
+                        }}
+                    >
+                        Login successful!
+                    </Alert>
+                </Snackbar>
             </Container>
         </ThemeProvider>
     );

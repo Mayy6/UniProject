@@ -1,0 +1,5 @@
+{
+  "_measurement": ["home", "office", "test 1", "test 2", "test 3"],
+  "room": ["Kitchen", "Living Room"],
+  "_field": ["co", "hum", "tem"]
+}

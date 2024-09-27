@@ -1,18 +1,22 @@
 import "./Header.css";
 import Button from '@mui/material/Button';
+import { Typography } from '@mui/material';
 
 function Header() {
-
   return (
     <div className="header-container">
-      <div className="title-box">NoCode InfluxDB</div>
-
+      <Typography
+        component="h1"
+        variant="h4"
+        className="header-title"
+      >
+        InfluxUI-PG01
+      </Typography>
       <div className="login-box">
         <Button className="login-btn" variant="outlined">LogIn</Button>
-        <Button className="login-btn" variant="outlined">SignUp</Button>
       </div>
     </div>
-  )
+  );
 }
 
-export default Header
+export default Header;
