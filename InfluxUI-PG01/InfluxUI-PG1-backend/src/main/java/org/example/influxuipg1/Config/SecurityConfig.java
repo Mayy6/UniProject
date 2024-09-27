@@ -25,6 +25,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login").permitAll()
 //                        .requestMatchers("/api/hello").permitAll()
+                        .requestMatchers("/api/query").permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, LogoutFilter.class)
                 .httpBasic(AbstractHttpConfigurer::disable);

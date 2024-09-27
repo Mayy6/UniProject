@@ -26,6 +26,33 @@ function Login() {
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const navigate = useNavigate();
 
+    const handleSubmit_back = async (event) => {
+        event.preventDefault();
+        console.log('Username:', username);
+        console.log('Password:', password);
+
+        try {
+            const response = await axios.post("http://localhost:1808/api/login", {
+                username,
+                password
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        const token = response.data.jwt;
+                        localStorage.setItem('token', token);
+                        console.log("Login successful");
+                        setSuccessMessage("Login successful!");
+                        setErrorMessage("");
+                        // alert('Login successful');
+                        // window.location.href = '/dashboard'
+                    }
+                })
+        } catch (error) {
+            setErrorMessage("Incorrect username or password");
+            setSuccessMessage("");
+
+        }
+    };
     const handleSubmit = (e) => {
         e.preventDefault();
         const user = userData.users.find(u => u.username === username.trim() && u.password === password);
@@ -65,7 +92,7 @@ function Login() {
                     </Typography>
                     <Card sx={{ mt: 3, boxShadow: 5 }}>
                         <CardContent>
-                            <form onSubmit={handleSubmit}>
+                            <form onSubmit={handleSubmit_back}>
                                 <TextField
                                     variant="outlined"
                                     margin="normal"
