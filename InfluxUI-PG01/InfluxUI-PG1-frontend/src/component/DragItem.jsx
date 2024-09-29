@@ -14,23 +14,23 @@ const DragItem = ({ label, type, onDragStart, allowedDropEffect }) => {
 
   return (
     <div
-      ref={drag}
       style={{
-        opacity: isDragging ? 0.5 : 1,
-        cursor: 'move',
         margin: '5px',
         width: '50%',
       }}
     >
       <Chip
+        ref={drag}
         label={label}
         style={{
           backgroundColor: isDragging ? '#e0e0e0' : '#f1f1f1',
           border: '1px solid #ccc',
           cursor: 'move',
-          maxWidth: '200px', 
-          minWidth: '50px', 
-          whiteSpace: 'nowrap', 
+          maxWidth: '200px',
+          minWidth: '50px',
+          whiteSpace: 'nowrap',
+          borderRadius: isDragging ? '0px' : '16px', 
+          opacity: isDragging ? 1 : 1, 
         }}
       />
     </div>

@@ -35,7 +35,7 @@ const DroppableArea = ({ acceptType, onDrop, items, boxHeight, removeItem }) => 
             marginBottom: '10px',
             backgroundColor: '#f9f9f9',
             border: '1px solid #e0e0e0',
-            height: '10%',        // 调整标签的高度
+            height: '10%', 
           }}
         >
           <Typography variant="body2">{item}</Typography>
