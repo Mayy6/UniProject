@@ -42,8 +42,6 @@ public class ApiController {
     }
 
 
-
-
     @PostMapping("/login")
     public ResponseEntity<?> createToken(@RequestBody AuthRequest authRequest) {
         String username = authRequest.getUsername();
@@ -60,7 +58,7 @@ public class ApiController {
 
         }
         String token = jwtTokenUtil.generateToken(username);
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token,username));
     }
 
     @PostMapping("/query")
