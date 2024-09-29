@@ -44,7 +44,7 @@ function Login() {
                         setSuccessMessage("Login successful!");
                         setErrorMessage("");
                         // alert('Login successful');
-                        // window.location.href = '/dashboard'
+                        // window.location.href = '/dashboardnew'
                     }
                 })
         } catch (error) {
@@ -62,7 +62,7 @@ function Login() {
             setErrorMessage("");
             setOpenSnackbar(true);
             setTimeout(() => {
-                navigate('/dashboard');
+                navigate('/dashboardnew');
             }, 1000);
         } else {
             setErrorMessage("Incorrect username or password");
