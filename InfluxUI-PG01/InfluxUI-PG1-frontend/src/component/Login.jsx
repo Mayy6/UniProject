@@ -45,7 +45,7 @@ function Login() {
                         console.log("Login successful");
                         setErrorMessage("");
                         alert('Login successful');
-                        window.location.href = '/dashboard'
+                        window.location.href = '/dashboardnew'
                     }
                 })
         } catch (error) {
