@@ -1,0 +1,29 @@
+[
+  {
+    "_measurement": "factory",
+    "tags": {
+      "room": "Production Room",
+      "machine_id": "M123",
+      "location": "Building A"
+    },
+    "fields": ["co", "temperature", "pressure"]
+  },
+  {
+    "_measurement": "home",
+    "tags": {
+      "room": "Living Room",
+      "device_id": "D456",
+      "owner": "John Doe"
+    },
+    "fields": ["temperature", "humidity", "light"]
+  },
+  {
+    "_measurement": "office",
+    "tags": {
+      "room": "Conference Room",
+      "employee_id": "E789",
+      "location": "Building B"
+    },
+    "fields": ["co", "noise_level", "temperature"]
+  }
+]

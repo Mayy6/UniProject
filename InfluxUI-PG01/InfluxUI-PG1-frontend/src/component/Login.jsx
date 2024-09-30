@@ -49,7 +49,6 @@ function Login() {
                     }
                 })
         } catch (error) {
-            debugger
             setErrorMessage("Incorrect username or password");
         }
     };
@@ -62,7 +61,7 @@ function Login() {
             setErrorMessage("");
             setOpenSnackbar(true);
             setTimeout(() => {
-                navigate('/dashboard');
+                navigate('/dashboardnew');
             }, 1000);
         } else {
             setErrorMessage("Incorrect username or password");
