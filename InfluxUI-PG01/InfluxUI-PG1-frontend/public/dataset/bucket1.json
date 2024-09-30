@@ -1,6 +1,29 @@
-{
-  
-  "_measurement": ["factory", "home", "office"],
-  "room": ["Production Room", "Living Room"],
-  "_field": ["co", "hum", "tem"]
-}
+[
+  {
+    "_measurement": "factory1",
+    "tags": {
+      "room1": "Production Room",
+      "machine_id1": "M113",
+      "location1": "Building A"
+    },
+    "fields": ["co1", "temperature1", "pressure1"]
+  },
+  {
+    "_measurement": "home1",
+    "tags": {
+      "room1": "Living Room",
+      "device_id1": "D456",
+      "owner1": "John Doe"
+    },
+    "fields": ["temperature1", "humidity1", "light1"]
+  },
+  {
+    "_measurement": "office1",
+    "tags": {
+      "room1": "Conference Room",
+      "employee_id1": "E789",
+      "location1": "Building B"
+    },
+    "fields": ["co1", "noise_level1", "temperature1"]
+  }
+]

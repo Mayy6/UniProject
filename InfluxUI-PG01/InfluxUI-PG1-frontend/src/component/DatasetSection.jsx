@@ -54,14 +54,14 @@ const DatasetSection = ({
                 sx={{
                   height: '150px',
                   padding: '10px',
-                  border: '2px solid rgba(0, 0, 0, 0.2)', // 加粗边框并使用稍深的颜色
+                  border: '2px solid rgba(0, 0, 0, 0.2)', 
                   display: 'flex',
                   flexWrap: 'wrap',
                   overflowY: 'auto',
                   gap: '8px',
-                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', // 保持柔和的阴影效果
-                  borderRadius: '8px', // 添加圆角
-                  backgroundColor: '#f5f7fa', // 使用柔和的浅灰蓝色背景
+                  boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)', 
+                  borderRadius: '8px', 
+                  backgroundColor: '#f5f7fa', 
                 }}
               >
                 {Array.isArray(bucketData[key]) ? (

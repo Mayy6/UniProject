@@ -4,11 +4,12 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './component/Login.jsx';
 import Dashboard from './component/Dashboard.jsx';
 import Header from './component/Header/Header.jsx';
-import { FluxQueryProvider } from './FluxQueryContext';  // 引入Context Provider
+import DashboardNew from './component/DashboardNew.jsx';
+import { FluxQueryProvider } from './FluxQueryContext'; 
 
 function App() {
     return (
-        <FluxQueryProvider>  {/* 包裹整个应用 */}
+        <FluxQueryProvider> 
             <>
                 <Header />
                 <Router>
@@ -16,6 +17,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<Login />} />
                             <Route path="/dashboard" element={<Dashboard />} />
+                            <Route path="/dashboardnew" element={<DashboardNew />} />
                         </Routes>
                     </div>
                 </Router>
@@ -25,3 +27,4 @@ function App() {
 }
 
 export default App;
+
