@@ -2,6 +2,7 @@ package org.example.influxuipg1;
 
 import com.influxdb.client.*;
 import com.influxdb.client.domain.Bucket;
+import com.influxdb.client.domain.WritePrecision;
 import com.influxdb.client.write.Point;
 import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
@@ -25,65 +26,38 @@ class InfluxUiPg1ApplicationTests {
     @Test
     void dbTestInfluxDB() {
         String hostUrl = "http://localhost:8086";
-        try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, "leonhartani", "Csxg1998".toCharArray())) {
-            String bucket = "leon";
-            String org = "ADL";
+        try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, "yuanyinkai", "yuanyinkai".toCharArray())) {
+            String bucket = "sepBucket";
+            String org = "sepOrg";
 
             
             List<Bucket> buckets = client.getBucketsApi().findBuckets();
             for (Bucket bucket1 : buckets) {
                 System.out.println(bucket1.getName());
             }
-
-
-            Point[] points = new Point[] {
-                    Point.measurement("census")
-                            .addTag("location", "Klamath")
-                            .addField("bees", 123.0),
-                    Point.measurement("census")
-                            .addTag("location", "Portland")
-                            .addField("ants", 130.0),
-                    Point.measurement("census")
-                            .addTag("location", "Klamath")
-                            .addField("bees", 128.0),
-                    Point.measurement("census")
-                            .addTag("location", "Portland")
-                            .addField("ants", 132.0),
-                    Point.measurement("census")
-                            .addTag("location", "Klamath")
-                            .addField("bees", 129.0),  
-                    Point.measurement("census")
-                            .addTag("location", "Portland")
-                            .addField("ants", 140.0)   
-            };
-
+            Instant now = Instant.now();
+            Point[] points = new Point[200];
+            for (int i = 0; i < 100; i++) {
+                Point point = Point.measurement("testMeasurement4")
+                        .addTag("location", "Portland")
+                        .addTag("tag_test", "test1")
+                        .time(now.minusSeconds(i), WritePrecision.S)
+                        .addField("ants", i);
+                points[i] = point;
+            }
+            for (int i = 100; i < 200; i++) {
+                Point point = Point.measurement("testMeasurement4")
+                        .addTag("location", "Queensland")
+                        .time(now.minusSeconds(i), WritePrecision.S)
+                        .addField("bees", i-50);
+                points[i] = point;
+            }
             WriteApiBlocking writeApi = client.getWriteApiBlocking();
             for (Point point : points) {
                 writeApi.writePoint(bucket, org, point);
-                Thread.sleep(1000);
             }
 
             System.out.println("Complete. Return to the InfluxDB UI.");
-            try {
-                QueryApi queryApi = client.getQueryApi();
-                String query = "from(bucket: \"leon\") |> range(start: -10m)";
-
-                List<FluxTable> query1 = queryApi.query(query, org);
-                for (FluxTable table : query1) {
-                    List<FluxRecord> records = table.getRecords();
-                    for (FluxRecord record : records) {
-                        String field = record.getField();
-                        Object value = record.getValue();
-                        Instant time = record.getTime();
-                        System.out.printf("| %-5s | %-5s | %-30s |%n", field, value, time);
-                    }
-                }
-            } catch (UnauthorizedException e) {
-                System.out.println("no authorization");
-            }
-
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
         }
     }
 
