@@ -14,7 +14,10 @@ import { useFluxQuery } from '../FluxQueryContext';
 const DragDropPage = () => {
   const [tabs, setTabs] = useState([createNewTab()]);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
-  const { setFluxQuery } = useFluxQuery(); 
+  const [searchMeasurement, setSearchMeasurement] = useState('');  // State for Measurements search
+  const [searchTag, setSearchTag] = useState('');  // State for Tags search
+  const [searchField, setSearchField] = useState('');  // State for Fields search
+  const { setFluxQuery } = useFluxQuery();
 
   function createNewTab() {
     return {
@@ -160,6 +163,17 @@ const DragDropPage = () => {
     setFluxQuery(query);
   };
 
+  // Filter measurements, tags, and fields independently based on their search terms
+  const filteredMeasurements = currentTab.measurements.filter(measurement =>
+    measurement.toLowerCase().includes(searchMeasurement.toLowerCase())
+  );
+  const filteredTags = currentTab.tags.filter(tag =>
+    tag.toLowerCase().includes(searchTag.toLowerCase())
+  );
+  const filteredFields = currentTab.fields.filter(field =>
+    field.toLowerCase().includes(searchField.toLowerCase())
+  );
+
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns}>
       <DndProvider backend={HTML5Backend}>
@@ -188,7 +202,6 @@ const DragDropPage = () => {
                       loadDataFromFile(e.target.value, activeTabIndex);
                     }}
                   >
-
                     {currentTab.bucketFiles.map((file, index) => (
                       <MenuItem key={index} value={file}>{file}</MenuItem>
                     ))}
@@ -198,10 +211,34 @@ const DragDropPage = () => {
 
               {currentTab.selectedFile ? (
                 <>
+                  
+
                   <Box sx={{ marginBottom: '10px' }}>
                     <Typography variant="h6" sx={{ fontSize: '0.9rem' }} gutterBottom>Measurements</Typography>
                     <Box sx={{ height: '200px', overflowY: 'auto', border: '2px solid #0288d1', padding: '10px', borderRadius: '8px' }}>
-                      {currentTab.measurements.map((m, index) => (
+                      {/* Search bar for measurements */}
+                      <TextField
+                        label="Search Measurements"
+                        variant="outlined"
+                        value={searchMeasurement}
+                        onChange={(e) => setSearchMeasurement(e.target.value)}
+                        fullWidth
+                        style={{ marginBottom: '20px', width: '100%', height: '30px' }}
+                        InputProps={{
+                          style: {
+                            height: '40px',  
+                            padding: '5px',  
+                            fontSize: '14px',  
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: '14px',  
+                            top: '-3px',  
+                          },
+                        }}
+                      />
+                      {filteredMeasurements.map((m, index) => (
                         <DraggableItem
                           key={index}
                           item={m}
@@ -212,38 +249,92 @@ const DragDropPage = () => {
                     </Box>
                   </Box>
 
+                  
+
                   <Box sx={{ marginBottom: '10px' }}>
                     <Typography variant="h6" sx={{ fontSize: '0.9rem' }} gutterBottom>Tags</Typography>
                     <Box sx={{ height: '200px', overflowY: 'auto', border: '2px solid #0288d1', padding: '10px', borderRadius: '8px' }}>
-                      {currentTab.tags.length === 0 ? (
+                      
+                      {filteredTags.length === 0 ? (
                         <Typography variant="body2" color="textSecondary">No tags available. Please select a measurement.</Typography>
                       ) : (
-                        currentTab.tags.map((tag, index) => (
+                        <>
+                        {/* Search bar for tags */}
+                      <TextField
+                        label="Search Tags"
+                        variant="outlined"
+                        value={searchTag}
+                        onChange={(e) => setSearchTag(e.target.value)}
+                        fullWidth
+                        style={{ marginBottom: '20px', width: '100%', height: '30px' }}
+                        InputProps={{
+                          style: {
+                            height: '40px',  
+                            padding: '5px',  
+                            fontSize: '14px',  
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontSize: '14px',  
+                            top: '-3px',  
+                          },
+                        }}
+                      />
+                        {filteredTags.map((tag, index) => (
                           <DraggableItem
                             key={index}
                             item={tag}
                             type="tag"
                             isDraggable={!currentTab.rightTags.includes(tag)}
                           />
-                        ))
+                        ))}
+                        </>
                       )}
                     </Box>
                   </Box>
 
+                  
+
                   <Box>
                     <Typography variant="h6" sx={{ fontSize: '0.9rem' }} gutterBottom>Fields</Typography>
                     <Box sx={{ height: '200px', overflowY: 'auto', border: '2px solid #0288d1', padding: '10px', borderRadius: '8px' }}>
-                      {currentTab.fields.length === 0 ? (
+                      
+                      {filteredFields.length === 0 ? (
                         <Typography variant="body2" color="textSecondary">No fields available. Please select a measurement.</Typography>
                       ) : (
-                        currentTab.fields.map((field, index) => (
+                        <>
+                        {/* Search bar for fields */}
+                        <TextField
+                          label="Search Fields"
+                          variant="outlined"
+                          value={searchField}
+                          onChange={(e) => setSearchField(e.target.value)}
+                          fullWidth
+                          style={{ marginBottom: '20px', width: '100%', height: '30px' }}
+                          InputProps={{
+                            style: {
+                              height: '40px',  
+                              padding: '5px',  
+                              fontSize: '14px',  
+                            },
+                          }}
+                          InputLabelProps={{
+                            style: {
+                              fontSize: '14px',  
+                              top: '-3px',  
+                            },
+                          }}
+                        />
+                        {filteredFields.map((field, index) => (
                           <DraggableItem
                             key={index}
                             item={field}
                             type="field"
                             isDraggable={!currentTab.rightFields.includes(field)}
                           />
-                        ))
+                        ))}
+                        </>
                       )}
                     </Box>
                   </Box>
