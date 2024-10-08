@@ -38,7 +38,7 @@ const DashboardNew = () => {
         >
           <Box 
             style={{ 
-              flexBasis: '60%',  
+              flexBasis: '50%',  
               padding: '10px',
               borderBottom: '1px solid #ccc', 
             }}
@@ -48,7 +48,7 @@ const DashboardNew = () => {
 
           <Box 
             style={{ 
-              flexBasis: '40%',  
+              flexBasis: '50%',  
               padding: '10px',
             }}
           >
