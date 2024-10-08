@@ -21,7 +21,7 @@ const CodeArea = ({ onGenerateQuery }) => {
       {isCodeVisible && (
         <textarea
           value={fluxQuery}
-          rows={15}
+          rows={20}
           cols={50}
           style={{
             marginTop: '5px',

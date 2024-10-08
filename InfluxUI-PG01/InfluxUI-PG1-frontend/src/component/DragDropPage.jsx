@@ -12,12 +12,15 @@ import QueryGenerator from './QueryGenerator';
 import { useFluxQuery } from '../FluxQueryContext';
 
 const DragDropPage = () => {
-  const [tabs, setTabs] = useState([createNewTab()]);
+  const [tabs, setTabs] = useState([createNewTab(1)]);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const { setFluxQuery } = useFluxQuery(); 
+  const [tabCounter, setTabCounter] = useState(2);
 
-  function createNewTab() {
+  function createNewTab(counter) {
     return {
+      id: Date.now(),
+      name: counter,
       measurements: [],
       tags: [],
       fields: [],
@@ -34,8 +37,9 @@ const DragDropPage = () => {
   }
 
   const handleAddTab = () => {
-    setTabs([...tabs, createNewTab()]);
+    setTabs([...tabs, createNewTab(tabCounter)]);
     setActiveTabIndex(tabs.length);
+    setTabCounter(tabCounter + 1);
   };
 
   const handleRemoveTab = (indexToRemove) => {
@@ -50,7 +54,7 @@ const DragDropPage = () => {
       setActiveTabIndex((prevIndex) => prevIndex - 1);
     }
   };
-
+  
   const currentTab = tabs[activeTabIndex];
 
   const loadBucketFiles = (tabIndex) => {
@@ -92,9 +96,13 @@ const DragDropPage = () => {
       .then((data) => {
         const selectedData = data.find(item => item._measurement === measurement);
         if (selectedData) {
-          const newTags = Object.keys(selectedData.tags).map((key) => `${measurement}.${key} = "${selectedData.tags[key]}"`);
+          const newTags = selectedData.tags.flatMap((tag) =>
+            Object.entries(tag).map(([key, values]) => 
+              values.map((value) => `${measurement}.${key} = "${value}"`)
+            ).flat()
+          );
           const newFields = selectedData.fields.map((field) => `${measurement}.${field}`);
-
+  
           const updatedTabs = [...tabs];
           updatedTabs[tabIndex].tags = Array.from(new Set([...updatedTabs[tabIndex].tags, ...newTags]));
           updatedTabs[tabIndex].fields = Array.from(new Set([...updatedTabs[tabIndex].fields, ...newFields]));
@@ -103,6 +111,7 @@ const DragDropPage = () => {
       })
       .catch((error) => console.error('Error generating tags and fields:', error));
   };
+  
 
   const handleDrop = (droppedItem, tabIndex) => {
     const { item, type } = droppedItem;

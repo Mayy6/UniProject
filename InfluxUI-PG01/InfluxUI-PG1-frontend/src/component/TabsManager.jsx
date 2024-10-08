@@ -1,17 +1,24 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Box, IconButton, Tab, Tabs, Button } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 
 const TabsManager = ({ tabs, activeTabIndex, onTabChange, onAddTab, onRemoveTab }) => {
   return (
     <Box sx={{ width: '100%', borderBottom: 1, borderColor: 'divider', marginBottom: '10px' }}>
-      <Tabs value={activeTabIndex} onChange={(event, newValue) => onTabChange(newValue)}>
+      <Tabs
+        value={activeTabIndex}
+        onChange={(event, newValue) => onTabChange(newValue)}
+        variant="scrollable"
+        scrollButtons="auto"
+        allowScrollButtonsMobile
+        aria-label="scrollable auto tabs"
+      >
         {tabs.map((tab, index) => (
           <Tab
-            key={index}
+            key={tab.id}  
             label={
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                {`Tab ${index + 1}`}
+                {`Tab ${tab.name}`}
                 <IconButton
                   size="small"
                   onClick={(e) => {
