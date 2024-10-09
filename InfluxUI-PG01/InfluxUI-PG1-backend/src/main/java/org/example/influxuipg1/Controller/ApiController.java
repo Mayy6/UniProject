@@ -153,6 +153,148 @@ public class ApiController {
         return ResponseEntity.ok(measures);
     }
 
+
+    /**
+     * Get specific measurement's tag keys.
+     * @param bucket
+     * @param measurement
+     * @return
+     */
+    @GetMapping("/tagkeys")
+    public ResponseEntity<List<String>> getTagKeys(@NotNull String bucket, @NotNull String measurement) {
+        InfluxDBClient client = influxdbRepository.getInfluxDBClient();
+        if (client == null) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(Collections.singletonList("Connect to influxDB failed."));
+        }
+
+        List<String> tagKeys = new ArrayList<>();
+        String flux = "\nimport \"influxdata/influxdb/schema\""
+                + "\nschema.tagKeys(bucket: \""+bucket+"\", predicate: (r) => r._measurement == \""+measurement+"\")";
+
+        System.out.println("Query for tag keys: "+flux);
+
+        try {
+            QueryApi queryApi = client.getQueryApi();
+            List<FluxTable> tables = queryApi.query(flux);
+            for (FluxTable fluxTable : tables) {
+                List<FluxRecord> records = fluxTable.getRecords();
+                for (FluxRecord fluxRecord : records) {
+                    String tagKey = (String) fluxRecord.getValueByKey("_value");
+                    if (tagKey != null && !tagKey.startsWith("_")) {  // Exclude system fields
+                        System.out.println("Tag key found: " + tagKey);
+                        tagKeys.add(tagKey);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ResponseEntity.ok(tagKeys);
+    }
+
+
+    @GetMapping("/tagvalues")
+    public ResponseEntity<List<Map<String, List<String>>>> getTagValues(@NotNull String bucket,
+                                                                        @NotNull String measurement,
+                                                                        @RequestParam(required = false) String tagkeys) {
+        InfluxDBClient client = influxdbRepository.getInfluxDBClient();
+        if (client == null) {
+            return ResponseEntity
+                    .internalServerError()
+                    .body(Collections.singletonList(Collections.singletonMap("error", Collections.singletonList("Connect to influxDB failed."))));
+        }
+
+        List<Map<String, List<String>>> tagsList = new ArrayList<>();  // List to hold the tag key-value pairs
+
+        try {
+            QueryApi queryApi = client.getQueryApi();
+
+            // Query all tag keys if no specific tag key is provided
+            if (tagkeys == null || tagkeys.isEmpty()) {
+                String fluxTagKeysQuery = "\nimport \"influxdata/influxdb/schema\""
+                        + "\nschema.tagKeys(bucket: \"" + bucket + "\", predicate: (r) => r._measurement == \"" + measurement + "\")";
+
+                List<FluxTable> tables = queryApi.query(fluxTagKeysQuery);
+                List<String> tagKeys = new ArrayList<>();
+                for (FluxTable fluxTable : tables) {
+                    List<FluxRecord> records = fluxTable.getRecords();
+                    for (FluxRecord fluxRecord : records) {
+                        String tagKey = (String) fluxRecord.getValueByKey("_value");
+                        if (tagKey != null && !tagKey.startsWith("_")) {
+                            tagKeys.add(tagKey);
+                        }
+                    }
+                }
+
+                // For each tag key, query the corresponding tag values
+                for (String tagKey : tagKeys) {
+                    List<String> tagValues = new ArrayList<>();
+                    String fluxTagValuesQuery = "\nfrom(bucket: \"" + bucket + "\")"
+                            + "\n  |> range(start: -30000d, stop: now())"
+                            + "\n  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\" and exists r[\"" + tagKey + "\"])"
+                            + "\n  |> keep(columns: [\"" + tagKey + "\"])"
+                            + "\n  |> distinct(column: \"" + tagKey + "\")"
+                            + "\n  |> sort()";
+
+                    List<FluxTable> valueTables = queryApi.query(fluxTagValuesQuery);
+                    for (FluxTable valueTable : valueTables) {
+                        List<FluxRecord> valueRecords = valueTable.getRecords();
+                        for (FluxRecord valueRecord : valueRecords) {
+                            String tagValue = (String) valueRecord.getValueByKey("_value");
+                            if (tagValue != null) {
+                                tagValues.add(tagValue);
+                            }
+                        }
+                    }
+
+                    // Add the tag key and its values as a dictionary to the tags list
+                    Map<String, List<String>> tagMap = new HashMap<>();
+                    tagMap.put(tagKey, tagValues);
+                    tagsList.add(tagMap);
+                }
+            } else {
+                // If a specific tag key is provided, query only that tag key
+                List<String> tagValues = new ArrayList<>();
+                String fluxTagValuesQuery = "\nfrom(bucket: \"" + bucket + "\")"
+                        + "\n  |> range(start: -30000d, stop: now())"
+                        + "\n  |> filter(fn: (r) => r[\"_measurement\"] == \"" + measurement + "\" and exists r[\"" + tagkeys + "\"])"
+                        + "\n  |> keep(columns: [\"" + tagkeys + "\"])"
+                        + "\n  |> distinct(column: \"" + tagkeys + "\")"
+                        + "\n  |> sort()";
+
+                List<FluxTable> valueTables = queryApi.query(fluxTagValuesQuery);
+                for (FluxTable valueTable : valueTables) {
+                    List<FluxRecord> valueRecords = valueTable.getRecords();
+                    for (FluxRecord valueRecord : valueRecords) {
+                        String tagValue = (String) valueRecord.getValueByKey("_value");
+                        if (tagValue != null) {
+                            tagValues.add(tagValue);
+                        }
+                    }
+                }
+
+                // Add the tag key and its values as a dictionary to the tags list
+                Map<String, List<String>> tagMap = new HashMap<>();
+                tagMap.put(tagkeys, tagValues);
+                tagsList.add(tagMap);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity
+                    .internalServerError()
+                    .body(Collections.singletonList(Collections.singletonMap("error", Collections.singletonList("Failed to fetch tag values."))));
+        }
+
+        return ResponseEntity.ok(tagsList);
+    }
+
+
+
+
     /**
      * Get specific measurement's fields.
      * @param bucket
@@ -199,4 +341,3 @@ public class ApiController {
         return ResponseEntity.ok(fields);
     }
 }
-
