@@ -261,40 +261,40 @@ const DragDropPage = () => {
                     <Box sx={{ height: '200px', overflowY: 'auto', border: '2px solid #0288d1', padding: '10px', borderRadius: '8px' }}>
 
                       {filteredTags.length === 0 ? (
-                        <Typography variant="body2" color="textSecondary">No tags available. Please select a measurement.</Typography>
+                          <Typography variant="body2" color="textSecondary">No tags available. Please select a measurement.</Typography>
                       ) : (
-                        <>
-                        {/* Search bar for tags */}
-                      <TextField
-                        label="Search Tags"
-                        variant="outlined"
-                        value={searchTag}
-                        onChange={(e) => setSearchTag(e.target.value)}
-                        fullWidth
-                        style={{ marginBottom: '20px', width: '100%', height: '30px' }}
-                        InputProps={{
-                          style: {
-                            height: '40px',
-                            padding: '5px',
-                            fontSize: '14px',
-                          },
-                        }}
-                        InputLabelProps={{
-                          style: {
-                            fontSize: '14px',
-                            top: '-3px',
-                          },
-                        }}
-                      />
-                        {filteredTags.map((tag, index) => (
-                          <DraggableItem
-                            key={index}
-                            item={tag}
-                            type="tag"
-                            isDraggable={!currentTab.rightTags.includes(tag)}
-                          />
-                        ))}
-                        </>
+                          <>
+                            {/* Search bar for tags */}
+                            <TextField
+                                label="Search Tags"
+                                variant="outlined"
+                                value={searchTag}
+                                onChange={(e) => setSearchTag(e.target.value)}
+                                fullWidth
+                                style={{ marginBottom: '20px', width: '100%', height: '30px' }}
+                                InputProps={{
+                                  style: {
+                                    height: '40px',
+                                    padding: '5px',
+                                    fontSize: '14px',
+                                  },
+                                }}
+                                InputLabelProps={{
+                                  style: {
+                                    fontSize: '14px',
+                                    top: '-3px',
+                                  },
+                                }}
+                            />
+                            {filteredTags.map((tag, index) => (
+                                <DraggableItem
+                                    key={index}
+                                    item={tag}
+                                    type="tag"
+                                    isDraggable={!currentTab.rightTags.includes(tag)}
+                                />
+                            ))}
+                          </>
                       )}
                     </Box>
                   </Box>
