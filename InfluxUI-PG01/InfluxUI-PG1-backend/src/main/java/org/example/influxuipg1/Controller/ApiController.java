@@ -12,6 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import org.example.influxuipg1.InfluxdbRepository.InfluxdbRepository;
 import org.example.influxuipg1.Model.AuthRequest;
 import org.example.influxuipg1.Model.AuthResponse;
+import org.example.influxuipg1.Model.QueryLog;
 import org.example.influxuipg1.Model.User;
 import org.example.influxuipg1.Service.ApiService;
 import org.example.influxuipg1.Util.JwtTokenUtil;
@@ -25,10 +26,10 @@ import java.util.*;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-    private List<User> testUsers = Arrays.asList(
-            new User("777", "yuanyinkai", "123456", "1234@xxx.com", "admin"),
-            new User("777", "yyk","123456", "1234@xxx.com", "admin")
-    );
+//    private List<User> testUsers = Arrays.asList(
+//            new User("777", "yuanyinkai", "123456", "1234@xxx.com", "admin"),
+//            new User("777", "yyk","123456", "1234@xxx.com", "admin")
+//    );
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
@@ -41,18 +42,19 @@ public class ApiController {
         return "first message";
     }
 
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody User user) {
+        apiService.registerUser(user);
+        return ResponseEntity.ok("User registered successfully");
+    }
+
 
     @PostMapping("/login")
     public ResponseEntity<?> createToken(@RequestBody AuthRequest authRequest) {
         String username = authRequest.getUsername();
         String password = authRequest.getPassword();
-        User user = null;
-        for (User testUser : testUsers) {
-            if (Objects.equals(username, testUser.getName()) && Objects.equals(password, testUser.getId())) {
-                user = testUser;
-                break;
-            }
-        }
+        User user = apiService.selectUserByName(username);
+
         if (user == null) {
             return new ResponseEntity<>("User not found", HttpStatus.UNAUTHORIZED);
 
@@ -61,17 +63,21 @@ public class ApiController {
         return ResponseEntity.ok(new AuthResponse(token,username));
     }
 
+
+
     @PostMapping("/query")
     public String logQuery(
             @RequestParam String username,
-            @RequestParam String query,
             @RequestParam String bucket,
             @RequestParam String measurement,
             @RequestParam String field,
+            @RequestParam String tags,
+            @RequestParam String query_duration,
+            @RequestParam String result_status,
             @RequestParam(required = false) String filter) {
 
         // Log the query
-        apiService.logQuery(username, query, bucket, measurement, field, filter);
+        apiService.logQuery(username, bucket, measurement, field, tags, query_duration, result_status, filter);
 
         return "Query logged successfully";
     }
@@ -128,7 +134,7 @@ public class ApiController {
     }
 
 
-    
+
     @GetMapping("/bucket")
     public ResponseEntity<List<String>> getBuckets() {
         InfluxDBClient client = influxdbRepository.getInfluxDBClient();
