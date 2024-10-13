@@ -9,7 +9,7 @@ const QueryGenerator = ({ fileName, measurements, tags, fields, timeRange, custo
       return;
     }
 
-    let query = `from(bucket: "${fileName}")\n`;
+    let query = `from(bucket:"${fileName}")\n`;
 
     if (timeRange === 'Custom Time Range') {
       const formatLocalTime = (date) => {
@@ -36,7 +36,7 @@ const QueryGenerator = ({ fileName, measurements, tags, fields, timeRange, custo
     }
     
 
-    query += `  |> filter(fn: (r) => r._measurement == "${measurements.join('" or r._measurement == "')})\n`;
+    query += `  |> filter(fn: (r) => r._measurement == "${measurements.join('" or r._measurement == "')}")\n`;
 
     if (Object.keys(tags).length > 0) {
       Object.keys(tags).forEach(tagKey => {
@@ -50,7 +50,7 @@ const QueryGenerator = ({ fileName, measurements, tags, fields, timeRange, custo
 
     if (fields.length > 0) {
       const fieldsWithoutPrefix = fields.map(field => field.split('.').pop());
-      query += `  |> filter(fn: (r) => r._field == "${fieldsWithoutPrefix.join('" or r._field == "')})\n`;
+      query += `  |> filter(fn: (r) => r._field == "${fieldsWithoutPrefix.join('" or r._field == "')}")\n`;
     }
 
     onGenerateQuery(query);
