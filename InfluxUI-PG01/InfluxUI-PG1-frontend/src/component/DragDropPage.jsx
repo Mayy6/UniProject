@@ -36,6 +36,8 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
       customEndTime: new Date(),
       open: false,
       bucketFiles: [],
+      tagOptions: {}, 
+      selectedTagValues: {},
     };
   }
 
@@ -99,30 +101,53 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
       .then((data) => {
         const selectedData = data.find(item => item._measurement === measurement);
         if (selectedData) {
-          const newTags = selectedData.tags.flatMap((tag) =>
-            Object.entries(tag).map(([key, values]) =>
-              values.map((value) => `${measurement}.${key} = "${value}"`)
-            ).flat()
-          );
+          const newTags = selectedData.tags.map((tag) => {
+            return Object.keys(tag).map(key => `${measurement}.${key}`);
+          }).flat();
+
+          const tagOptions = selectedData.tags.reduce((acc, tag) => {
+            Object.entries(tag).forEach(([key, values]) => {
+              acc[`${measurement}.${key}`] = values;
+            });
+            return acc;
+          }, {});
+
+
           const newFields = selectedData.fields.map((field) => `${measurement}.${field}`);
 
           const updatedTabs = [...tabs];
           updatedTabs[tabIndex].tags = Array.from(new Set([...updatedTabs[tabIndex].tags, ...newTags]));
           updatedTabs[tabIndex].fields = Array.from(new Set([...updatedTabs[tabIndex].fields, ...newFields]));
+          updatedTabs[tabIndex].tagOptions = tagOptions; 
           setTabs(updatedTabs);
         }
       })
       .catch((error) => console.error('Error generating tags and fields:', error));
   };
+  const handleUpdateTagSelections = (tag, selectedValues, tabIndex) => {
+    const updatedTabs = [...tabs];
+    updatedTabs[tabIndex].selectedTagValues = {
+      ...updatedTabs[tabIndex].selectedTagValues,
+      [tag]: selectedValues,
+    };
+    setTabs(updatedTabs);
+  };
+
 
   const handleDrop = (droppedItem, tabIndex) => {
     const { item, type } = droppedItem;
     const updatedTabs = [...tabs];
+
     if (type === 'measurement' && !updatedTabs[tabIndex].rightMeasurements.includes(item)) {
       updatedTabs[tabIndex].rightMeasurements.push(item);
       generateTagsAndFields(item, tabIndex);
     } else if (type === 'tag' && !updatedTabs[tabIndex].rightTags.includes(item)) {
       updatedTabs[tabIndex].rightTags.push(item);
+      const tagOptions = updatedTabs[tabIndex].tagOptions[item];
+      updatedTabs[tabIndex].selectedTagValues = {
+        ...updatedTabs[tabIndex].selectedTagValues,
+        [item]: tagOptions, 
+      };
     } else if (type === 'field' && !updatedTabs[tabIndex].rightFields.includes(item)) {
       updatedTabs[tabIndex].rightFields.push(item);
     }
@@ -131,6 +156,7 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
 
   const removeItem = (item, tabIndex) => {
     const updatedTabs = [...tabs];
+
     if (updatedTabs[tabIndex].rightMeasurements.includes(item)) {
       const relatedTags = updatedTabs[tabIndex].tags.filter(tag => tag.startsWith(`${item}.`));
       const relatedFields = updatedTabs[tabIndex].fields.filter(field => field.startsWith(`${item}.`));
@@ -139,8 +165,14 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
       updatedTabs[tabIndex].fields = updatedTabs[tabIndex].fields.filter(field => !relatedFields.includes(field));
       updatedTabs[tabIndex].rightMeasurements = updatedTabs[tabIndex].rightMeasurements.filter(m => m !== item);
     }
-    updatedTabs[tabIndex].rightTags = updatedTabs[tabIndex].rightTags.filter(t => t !== item);
+
+    if (updatedTabs[tabIndex].rightTags.includes(item)) {
+      updatedTabs[tabIndex].rightTags = updatedTabs[tabIndex].rightTags.filter(t => t !== item);
+      delete updatedTabs[tabIndex].selectedTagValues[item];
+    }
+
     updatedTabs[tabIndex].rightFields = updatedTabs[tabIndex].rightFields.filter(f => f !== item);
+
     setTabs(updatedTabs);
   };
 
@@ -211,7 +243,6 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
                       loadDataFromFile(e.target.value, activeTabIndex);
                     }}
                   >
-
                     {currentTab.bucketFiles.map((file, index) => (
                       <MenuItem key={index} value={file}>{file}</MenuItem>
                     ))}
@@ -260,7 +291,6 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
                   <Box sx={{ marginBottom: '10px' }}>
                     <Typography variant="h6" sx={{ fontSize: '0.9rem' }} gutterBottom>Tags</Typography>
                     <Box sx={{ height: '200px', overflowY: 'auto', border: '2px solid #0288d1', padding: '10px', borderRadius: '8px' }}>
-
                       {filteredTags.length === 0 ? (
                           <Typography variant="body2" color="textSecondary">No tags available. Please select a measurement.</Typography>
                       ) : (
@@ -303,8 +333,9 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
                   <Box>
                     <Typography variant="h6" sx={{ fontSize: '0.9rem' }} gutterBottom>Fields</Typography>
                     <Box sx={{ height: '200px', overflowY: 'auto', border: '2px solid #0288d1', padding: '10px', borderRadius: '8px' }}>
+                      
+                    {filteredFields.length === 0 ? (
 
-                      {filteredFields.length === 0 ? (
                         <Typography variant="body2" color="textSecondary">No fields available. Please select a measurement.</Typography>
                       ) : (
                         <>
@@ -364,6 +395,7 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
                     <MenuItem value="Last 24 hours">Last 24 hours</MenuItem>
                     <MenuItem value="Last 7 days">Last 7 days</MenuItem>
                     <MenuItem value="Custom Time Range">Custom Time Range</MenuItem>
+                    <MenuItem value="None">None</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
@@ -416,6 +448,9 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
                   onDrop={(droppedItem) => handleDrop(droppedItem, activeTabIndex)}
                   items={currentTab.rightTags}
                   removeItem={(item) => removeItem(item, activeTabIndex)}
+                  tagOptions={currentTab.tagOptions || {}}
+                  updateTagSelections={(tag, selectedValues) => handleUpdateTagSelections(tag, selectedValues, activeTabIndex)}
+                  selectedTagValues={currentTab.selectedTagValues || {}}
                   boxHeight={'200px'}
                 />
               </Box>
@@ -434,7 +469,7 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
               <QueryGenerator
                 fileName={currentTab.selectedFile}
                 measurements={currentTab.rightMeasurements}
-                tags={currentTab.rightTags}
+                tags={currentTab.selectedTagValues || {}} 
                 fields={currentTab.rightFields}
                 timeRange={currentTab.selectedTimeRange}
                 customStartTime={currentTab.customStartTime}
