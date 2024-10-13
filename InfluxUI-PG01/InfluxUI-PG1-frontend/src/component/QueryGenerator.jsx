@@ -35,6 +35,9 @@ const QueryGenerator = ({ fileName, measurements, tags, fields, timeRange, custo
     }
     else if(timeRange === 'Last 7 days'){
         query += `  |> range(start: -7d)\n`;
+    } else {
+        alert('Please select at least one time range.');
+        return;
     }
 
     query += `  |> filter(fn: (r) => r._measurement == "${measurements.join('" or r._measurement == "')})`;
