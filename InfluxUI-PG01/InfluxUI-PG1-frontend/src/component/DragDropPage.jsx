@@ -112,6 +112,7 @@ const DragDropPage = () => {
             return acc;
           }, {});
 
+
           const newFields = selectedData.fields.map((field) => `${measurement}.${field}`);
 
           const updatedTabs = [...tabs];
@@ -123,7 +124,6 @@ const DragDropPage = () => {
       })
       .catch((error) => console.error('Error generating tags and fields:', error));
   };
-
   const handleUpdateTagSelections = (tag, selectedValues, tabIndex) => {
     const updatedTabs = [...tabs];
     updatedTabs[tabIndex].selectedTagValues = {
@@ -132,6 +132,7 @@ const DragDropPage = () => {
     };
     setTabs(updatedTabs);
   };
+
 
   const handleDrop = (droppedItem, tabIndex) => {
     const { item, type } = droppedItem;
@@ -333,6 +334,7 @@ const DragDropPage = () => {
                     <Box sx={{ height: '200px', overflowY: 'auto', border: '2px solid #0288d1', padding: '10px', borderRadius: '8px' }}>
                       
                     {filteredFields.length === 0 ? (
+
                         <Typography variant="body2" color="textSecondary">No fields available. Please select a measurement.</Typography>
                       ) : (
                         <>
