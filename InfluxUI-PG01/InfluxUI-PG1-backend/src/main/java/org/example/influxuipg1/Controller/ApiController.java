@@ -50,17 +50,20 @@ public class ApiController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> createToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<String> login(@RequestBody AuthRequest authRequest) {
         String username = authRequest.getUsername();
         String password = authRequest.getPassword();
-        User user = apiService.selectUserByName(username);
 
-        if (user == null) {
-            return new ResponseEntity<>("User not found", HttpStatus.UNAUTHORIZED);
+        //call validateUserLogin to verify the username and password
+        boolean isValidUser = apiService.validateUserLogin(username, password);
 
+        if (isValidUser) {
+            //if successful, return successful
+            return ResponseEntity.ok("login successful");
+        } else {
+            // if incorrect,return incorrect info
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("username or password incorrect");
         }
-        String token = jwtTokenUtil.generateToken(username);
-        return ResponseEntity.ok(new AuthResponse(token));
     }
 
 
