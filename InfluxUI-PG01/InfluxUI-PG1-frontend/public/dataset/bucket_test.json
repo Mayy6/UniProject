@@ -2,7 +2,7 @@
   {
     "_measurement": "factory",
     "tags": [
-      {"room": ["Production Room"]},
+      {"room": ["Production Room","Living Room","Kitchen","Production Room2","Living Room2","Kitchen2","Production Room3","Living Room3","Kitchen3"]},
       {"machine_id": ["M123"]},
       {"location": ["Building A"]}
     ],
