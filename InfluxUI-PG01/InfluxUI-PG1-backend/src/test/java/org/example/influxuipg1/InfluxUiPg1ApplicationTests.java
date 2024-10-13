@@ -22,15 +22,14 @@ import java.util.regex.Pattern;
 
 @SpringBootTest
 class InfluxUiPg1ApplicationTests {
-
     @Test
-    void dbTestInfluxDB() {
+    void dbCreateTestInfluxDB() {
         String hostUrl = "http://localhost:8086";
         try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, "yuanyinkai", "yuanyinkai".toCharArray())) {
             String bucket = "sepBucket";
             String org = "sepOrg";
 
-            
+
             List<Bucket> buckets = client.getBucketsApi().findBuckets();
             for (Bucket bucket1 : buckets) {
                 System.out.println(bucket1.getName());
@@ -38,7 +37,7 @@ class InfluxUiPg1ApplicationTests {
             Instant now = Instant.now();
             Point[] points = new Point[200];
             for (int i = 0; i < 100; i++) {
-                Point point = Point.measurement("testMeasurement4")
+                Point point = Point.measurement("grafanaTest")
                         .addTag("location", "Portland")
                         .addTag("tag_test", "test1")
                         .time(now.minusSeconds(i), WritePrecision.S)
@@ -46,7 +45,7 @@ class InfluxUiPg1ApplicationTests {
                 points[i] = point;
             }
             for (int i = 100; i < 200; i++) {
-                Point point = Point.measurement("testMeasurement4")
+                Point point = Point.measurement("grafanaTest")
                         .addTag("location", "Queensland")
                         .time(now.minusSeconds(i), WritePrecision.S)
                         .addField("bees", i-50);
@@ -61,10 +60,47 @@ class InfluxUiPg1ApplicationTests {
         }
     }
 
+
+    @Test
+    void dbTestInfluxDB() {
+        long start = System.currentTimeMillis();
+        String hostUrl = "http://localhost:8086";
+        try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, "yuanyinkai", "yuanyinkai".toCharArray())) {
+            String bucket = "sepBucket";
+            String org = "sepOrg";
+            String query = "from(bucket: \"sepBucket\")\n" +
+                    "  |> range(start: -40d, stop: -10m)\n" +
+                    "  |> filter(fn: (r) => r[\"_measurement\"] == \"testMeasurement4\")\n" +
+                    "  |> filter(fn: (r) => r[\"_field\"] == \"ants\" or r[\"_field\"] == \"bees\")\n" +
+                    "  |> filter(fn: (r) => r[\"location\"] == \"Portland\" or r[\"location\"] == \"Queensland\")";
+            QueryApi influxQLQueryApi = client.getQueryApi();
+            List<FluxTable> tables = influxQLQueryApi.query(query, org);
+            long end = System.currentTimeMillis();
+            System.out.println(end - start);
+            for (FluxTable table : tables) {
+                for (FluxRecord record : table.getRecords()) {
+                    System.out.println(record);
+                }
+            }
+
+
+
+            // 关闭客户端
+            client.close();
+
+        }
+    }
+
     @Test
     void createGrafanaDashboard() throws IOException, InterruptedException {
         String key = "glsa_59XrtzqaLhSMrlep4eCcGvPsXCaf9xE6_b83d1d4f";
         String url = "http://localhost:3000/api/dashboards/db";
+        String query = "from(bucket: \"sepBucket\")\n" +
+                "  |> range(start: -40d, stop: -10m)\n" +
+                "  |> filter(fn: (r) => r[\"_measurement\"] == \"testMeasurement4\")\n" +
+                "  |> filter(fn: (r) => r[\"_field\"] == \"ants\" or r[\"_field\"] == \"bees\")\n" +
+                "  |> filter(fn: (r) => r[\"location\"] == \"Portland\" or r[\"location\"] == \"Queensland\")\n" +
+                "  |> yield(name: \"mean\")";
         String dashboardJson = "{" +
                 "  \"dashboard\": {\n" +
                 "    \"title\": \"sepTes\",\n" +
@@ -95,7 +131,7 @@ class InfluxUiPg1ApplicationTests {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         String responseBody = response.body();
-        String uid = extractUidFromResponse(responseBody);  
+        String uid = extractUidFromResponse(responseBody);
         System.out.println("Dashboard created with UID: " + uid);
     }
 

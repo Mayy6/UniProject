@@ -11,7 +11,7 @@ import TabsManager from './TabsManager';
 import QueryGenerator from './QueryGenerator';
 import { useFluxQuery } from '../FluxQueryContext';
 
-const DragDropPage = () => {
+const DragDropPage = ({ onQueryAction, onSecondAction }) => {
   const [tabs, setTabs] = useState([createNewTab(1)]);
   const [activeTabIndex, setActiveTabIndex] = useState(0);
   const [searchMeasurement, setSearchMeasurement] = useState('');  // State for Measurements search
@@ -169,6 +169,7 @@ const DragDropPage = () => {
 
   const handleGenerateQuery = (query) => {
     setFluxQuery(query);
+    onQueryAction(query);
   };
 
   // Filter measurements, tags, and fields independently based on their search terms

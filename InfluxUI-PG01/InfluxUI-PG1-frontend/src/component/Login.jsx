@@ -32,7 +32,7 @@ function Login() {
         console.log('Username:', username);
         console.log('Password:', password);
         try {
-            const response = await axios.post("http://localhost:1808/api/login", {
+            await axios.post("http://localhost:1808/api/login", {
                 username,
                 password
             })

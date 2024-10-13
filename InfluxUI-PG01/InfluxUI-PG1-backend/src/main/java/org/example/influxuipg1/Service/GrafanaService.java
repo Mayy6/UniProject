@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -17,27 +18,42 @@ import java.util.regex.Pattern;
 @Service
 public class GrafanaService {
 
-    public String  createGrafanaDashboard(String query) throws IOException, InterruptedException {
-        String key = "glsa_59XrtzqaLhSMrlep4eCcGvPsXCaf9xE6_b83d1d4f";
+    public String  createGrafanaDashboard(String key,String username, String query) throws IOException, InterruptedException {
         String url = "http://localhost:3000/api/dashboards/db";
-        String dashboardJson = "{" +
-                "  \"dashboard\": {\n" +
-                "    \"title\": \"sepTes\",\n" +
-                "    \"panels\": [{\n" +
-                "      \"type\": \"graph\",\n" +
-                "      \"title\": \"Test Panel\",\n" +
-                "      \"datasource\": \"influxdb1\",\n" +
-                "      \"targets\": [{\n" +
-                "        \"query\": \""+ query+"\",\n" +
-                "        \"type\": \"flux\"\n" +
-                "      }],\n" +
-                "      \"gridPos\": {\"x\": 0, \"y\": 0, \"w\": 24, \"h\": 8}\n" +
-                "    }],\n" +
-                "    \"schemaVersion\": 30,\n" +
-                "    \"version\": 1\n" +
-                "  },\n" +
-                "  \"folderId\": 0,\n" +
-                "  \"overwrite\": false\n" +
+        String string = UUID.randomUUID().toString();
+        query = query.replaceAll("\"","\\\\\"").replace("\n","");
+        String dashboardJson = "{\n" +
+                "    \"dashboard\": {\n" +
+                "        \"title\": \""+username+"\",\n" +
+                "        \"panels\": [\n" +
+                "            {\n" +
+                "                \"type\": \"graph\",\n" +
+                "                \"title\": \"Test Panel\",\n" +
+                "                \"datasource\": \"InfluxDB\",\n" +
+                "                \"targets\": [\n" +
+                "                    {\n" +
+                "                        \"query\": \""+query+"\",\n" +
+                "                        \"type\": \"flux\",\n" +
+                "                        \"maxDataPoints\": 1000 \n" +
+                "                    }\n" +
+                "                ],\n" +
+                "                \"gridPos\": {\n" +
+                "                    \"x\": 0,\n" +
+                "                    \"y\": 0,\n" +
+                "                    \"w\": 24,\n" +
+                "                    \"h\": 8\n" +
+                "                }\n" +
+                "            }\n" +
+                "        ],\n" +
+                "        \"schemaVersion\": 30,\n" +
+                "        \"version\": 1,\n" +
+                "        \"time\": {\n" +
+                "            \"from\": \"now-1d\",\n" +
+                "            \"to\": \"now\"\n" +
+                "        }\n" +
+                "    },\n" +
+                "    \"folderId\": 0,\n" +
+                "    \"overwrite\": true\n" +
                 "}\n";
 
         HttpClient client = HttpClient.newHttpClient();

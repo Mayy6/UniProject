@@ -4,6 +4,8 @@ import org.example.influxuipg1.Model.QueryLog;
 import org.example.influxuipg1.Model.User;
 import org.example.influxuipg1.Repository.QueryLogRepository;
 import org.example.influxuipg1.Repository.UserRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -81,6 +83,21 @@ public class ApiService {
 
     }
 
+    public String currentUserName() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication != null && authentication.isAuthenticated()) {
+            Object principal = authentication.getPrincipal();
+
+            if (principal instanceof UserDetails) {
+                return ((UserDetails) principal).getUsername();
+            } else {
+                return principal.toString();
+            }
+        }
+
+        return "no data";
+    }
 
 
 }
