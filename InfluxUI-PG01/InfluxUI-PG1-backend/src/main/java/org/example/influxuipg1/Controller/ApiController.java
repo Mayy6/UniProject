@@ -27,10 +27,10 @@ import java.util.*;
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-//    private List<User> testUsers = Arrays.asList(
-//            new User("777", "yuanyinkai", "123456", "1234@xxx.com", "admin"),
-//            new User("777", "yyk","123456", "1234@xxx.com", "admin")
-//    );
+    private List<User> testUsers = Arrays.asList(
+            new User("777", "yuanyinkai", "123456", "1234@xxx.com", "admin"),
+            new User("777", "yyk","123456", "1234@xxx.com", "admin")
+    );
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
@@ -77,7 +77,7 @@ public class ApiController {
             String token = jwtTokenUtil.generateToken(username);
 
             // return jwt token
-            return ResponseEntity.ok(new AuthResponse(token));
+            return ResponseEntity.ok(new AuthResponse(token,username));
         } else {
             // if username or password incorrect return info
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or password incorrect");

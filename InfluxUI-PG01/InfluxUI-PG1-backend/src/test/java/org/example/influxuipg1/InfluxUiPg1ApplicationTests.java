@@ -137,6 +137,8 @@ class InfluxUiPg1ApplicationTests {
         }
         System.out.println(lists);
     }
+
+
     @Test
     void dbCreateTestInfluxDB() {
         String hostUrl = "http://localhost:8086";
