@@ -8,21 +8,17 @@ import com.influxdb.query.FluxTable;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import jakarta.validation.constraints.NotNull;
 import org.example.influxuipg1.InfluxdbRepository.InfluxdbRepository;
 import org.example.influxuipg1.Model.QueryLog;
 import org.example.influxuipg1.Model.User;
 import org.example.influxuipg1.Repository.QueryLogRepository;
 import org.example.influxuipg1.Repository.UserRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.*;
 
