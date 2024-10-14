@@ -78,6 +78,7 @@ public class ApiController {
 
             // return jwt token
             return ResponseEntity.ok(new AuthResponse(token,username));
+
         } else {
             // if username or password incorrect return info
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or password incorrect");
