@@ -29,7 +29,6 @@ const DashboardNew = () => {
                 .then(response => {
                     if (response.status === 200) {
                         console.log(response);
-                        debugger
                         setShowGraph(true);
                         const uniqueParam = `&uniqParam=${Date.now()}`;  // 创建一个基于当前时间的唯一参数
                         setGrafanaUrl(response.data + uniqueParam);

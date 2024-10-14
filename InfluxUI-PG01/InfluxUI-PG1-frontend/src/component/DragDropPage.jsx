@@ -400,7 +400,6 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
                     <MenuItem value="Last 24 hours">Last 24 hours</MenuItem>
                     <MenuItem value="Last 7 days">Last 7 days</MenuItem>
                     <MenuItem value="Custom Time Range">Custom Time Range</MenuItem>
-                    <MenuItem value="None">None</MenuItem>
                   </Select>
                 </FormControl>
               </Box>
