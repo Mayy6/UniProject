@@ -1,11 +1,46 @@
-import React from 'react';
 import { DndProvider } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
-import DragDropPage from './DragDropPage'; 
+import React, { useState } from 'react';
+import DragDropPage from './DragDropPage';
 import { Box, Typography } from '@mui/material';
-import CodeArea from './CodeArea'; 
+import CodeArea from './CodeArea';
+import axios from "axios";
 
 const DashboardNew = () => {
+    const name = localStorage.getItem("name")
+    if (!name) {
+        window.location.href = '/'
+    }
+    const [grafanaUrl, setGrafanaUrl] = useState("");
+    const [showGraph, setShowGraph] = useState(false);
+    const handleFirstAction = (query) => {
+        console.log(query)
+        // const submit = "from(bucket: \"sepBucket\")\n" +
+        //     "  |> range(start: -40d, stop: -12m)\n" +
+        //     "  |> filter(fn: (r) => r[\"_measurement\"] == \"grafanaTest\")\n" +
+        //     "  |> filter(fn: (r) => r[\"_field\"] == \"ants\" or r[\"_field\"] == \"bees\")\n" +
+        //     "  |> filter(fn: (r) => r[\"location\"] == \"Portland\" or r[\"location\"] == \"Queensland\")\n" +
+        //     "  |> yield(name: \"mean\")";
+        const submit = query;
+        try {
+            axios.post("http://localhost:1808/api/query/grafana", {
+                submit
+            })
+                .then(response => {
+                    if (response.status === 200) {
+                        console.log(response);
+                        setShowGraph(true);
+                        const uniqueParam = `&uniqParam=${Date.now()}`;  // 创建一个基于当前时间的唯一参数
+                        setGrafanaUrl(response.data + uniqueParam);
+                    }
+                })
+        } catch (error) {
+            console.log("no")
+        }
+    };
+    const handleSecondAction = () => {
+        console.log("second")
+    };
   return (
     <DndProvider backend={HTML5Backend}>
       <Box 
@@ -17,7 +52,7 @@ const DashboardNew = () => {
         }}
       >
         <Box 
-          style={{ 
+          style={{
             flexBasis: '40%',
             padding: '10px', 
             borderRight: '1px solid #ccc', 
@@ -25,7 +60,7 @@ const DashboardNew = () => {
             maxHeight: '100%' 
           }}
         >
-          <DragDropPage />
+          <DragDropPage onQueryAction={handleFirstAction} onSecondAction={handleSecondAction}/>
         </Box>
 
         <Box 
@@ -36,24 +71,31 @@ const DashboardNew = () => {
             padding: '10px', 
           }}
         >
-          <Box 
-            style={{ 
-              flexBasis: '50%',  
-              padding: '10px',
-              borderBottom: '1px solid #ccc', 
-            }}
-          >
-            <Typography variant="h6">Graph Area</Typography>
-          </Box>
+            <Box
+                style={{
+                    flexBasis: '50%',
+                    padding: '10px',
+                    borderBottom: '1px solid #ccc',
+                }}
+            >
+                <Typography variant="h6">Graph Area</Typography>
+                {showGraph ? (
+                    <iframe src={grafanaUrl}
+                    width="100%" height="90%"></iframe>
+                ) : (
+                    <p>hello my friend!</p>
+                )}
 
-          <Box 
-            style={{ 
-              flexBasis: '50%',  
-              padding: '10px',
-            }}
-          >
-            <CodeArea/> 
-          </Box>
+            </Box>
+
+            <Box
+                style={{
+                    flexBasis: '50%',
+                    padding: '10px',
+                }}
+            >
+                <CodeArea/>
+            </Box>
         </Box>
       </Box>
     </DndProvider>

@@ -31,10 +31,11 @@ const QueryGenerator = ({ fileName, measurements, tags, fields, timeRange, custo
       query += `  |> range(start: -24h)\n`;
     } else if (timeRange === 'Last 7 days') {
       query += `  |> range(start: -7d)\n`;
-    } else if (timeRange === 'None') {
-      query += ``;
+    } else {
+        alert('Please select at least one time range.');
+        return;
     }
-    
+
 
     query += `  |> filter(fn: (r) => r._measurement == "${measurements.join('" or r._measurement == "')}")\n`;
 
@@ -42,7 +43,7 @@ const QueryGenerator = ({ fileName, measurements, tags, fields, timeRange, custo
       Object.keys(tags).forEach(tagKey => {
         const tagValues = tags[tagKey];
         if (tagValues && tagValues.length > 0) {
-          const tagWithoutPrefix = tagKey.split('.').pop(); 
+          const tagWithoutPrefix = tagKey.split('.').pop();
           query += `  |> filter(fn: (r) => ${tagValues.map(value => `r.${tagWithoutPrefix} == "${value}"`).join(' or ')})\n`;
         }
       });

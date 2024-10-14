@@ -25,4 +25,4 @@ CREATE TABLE IF NOT EXISTS public.query_log
     TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public.query_log
-    OWNER to postgres;
+    OWNER to sep;

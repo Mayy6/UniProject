@@ -25,7 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String Authorization = request.getHeader("Authorization");
-        if (request.getRequestURL().indexOf("/api/login") >= 0) {
+        if (request.getRequestURL().indexOf("/api/login") >= 0 ||request.getRequestURL().indexOf("/api/testPage") >= 0) {
             chain.doFilter(request, response);
             return;
         }

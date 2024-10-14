@@ -2,7 +2,13 @@ package org.example.influxuipg1.Controller;
 
 import com.influxdb.client.BucketsApi;
 import com.influxdb.client.InfluxDBClient;
-import com.influxdb.client.InfluxDBClientFactory;
+import org.example.influxuipg1.Model.*;
+import org.example.influxuipg1.Service.GrafanaService;
+import org.json.JSONArray;
+import org.springframework.http.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.client.RestTemplate;
 import com.influxdb.client.QueryApi;
 import com.influxdb.client.domain.Bucket;
 import com.influxdb.exceptions.UnauthorizedException;
@@ -10,36 +16,45 @@ import com.influxdb.query.FluxRecord;
 import com.influxdb.query.FluxTable;
 import jakarta.validation.constraints.NotNull;
 import org.example.influxuipg1.InfluxdbRepository.InfluxdbRepository;
-import org.example.influxuipg1.Model.AuthRequest;
-import org.example.influxuipg1.Model.AuthResponse;
-import org.example.influxuipg1.Model.QueryLog;
-import org.example.influxuipg1.Model.User;
 import org.example.influxuipg1.Service.ApiService;
 import org.example.influxuipg1.Util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.*;
 
 @RestController
 @RequestMapping("/api")
 public class ApiController {
-//    private List<User> testUsers = Arrays.asList(
-//            new User("777", "yuanyinkai", "123456", "1234@xxx.com", "admin"),
-//            new User("777", "yyk","123456", "1234@xxx.com", "admin")
-//    );
+    private List<User> testUsers = Arrays.asList(
+            new User("777", "yuanyinkai", "123456", "1234@xxx.com", "admin"),
+            new User("777", "yyk", "123456", "1234@xxx.com", "admin")
+    );
 
     @Autowired
     JwtTokenUtil jwtTokenUtil;
     @Autowired
     ApiService apiService;
     InfluxdbRepository influxdbRepository = new InfluxdbRepository();
+    @Autowired
+    private GrafanaService grafanaService;
 
     @GetMapping("/hello")
     public String hello() {
         return "first message";
+    }
+
+    @GetMapping("/testPage")
+    public ResponseEntity<String> testPage() {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        httpHeaders.add("Content-Type","application/json");
+        httpHeaders.setBearerAuth("glsa_vMTmHF9gTWMK1jJb1m3bDcUsD3SiaHkn_1c50ef07");
+        HttpEntity<String> entity = new HttpEntity<>(httpHeaders);
+        String url = "http://localhost:3000/d-solo/b477a3f6-854b-44cf-a7ee-6e498c144aaf/b477a3f6-854b-44cf-a7ee-6e498c144aaf?panelId=1";
+        return restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
     }
 
     @PostMapping("/register")
@@ -60,10 +75,16 @@ public class ApiController {
 
         }
         String token = jwtTokenUtil.generateToken(username);
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(new AuthResponse(token,username));
     }
 
-
+    @PostMapping("/query/grafana")
+    public ResponseEntity<?> queryGrafana(@RequestBody Query query) throws IOException, InterruptedException {
+        String userName = apiService.currentUserName();
+        String grafanaDashboard = grafanaService.createGrafanaDashboard("glsa_vMTmHF9gTWMK1jJb1m3bDcUsD3SiaHkn_1c50ef07",userName,query.getSubmit());
+        String url = "http://localhost:3000/d-solo/"+grafanaDashboard+"/"+userName+"?panelId=1&theme=light";
+        return ResponseEntity.ok(url);
+    }
 
     @PostMapping("/query")
     public String logQuery(
@@ -86,6 +107,54 @@ public class ApiController {
     public ResponseEntity<User> selectUser() {
         return ResponseEntity.ok(apiService.selectUserById("777"));
     }
+
+    // Get all users
+    @GetMapping("/users")
+    public ResponseEntity<List<User>> getAllUsers() {
+        return ResponseEntity.ok(testUsers);  // Return all users
+    }
+
+    // Get a specific user by ID
+    @GetMapping("/user/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
+        for (User user : testUsers) {
+            if (user.getId().equals(id)) {
+                return ResponseEntity.ok(user);  // Return the user if found
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return 404 if user is not found
+    }
+
+    // Update a user's information
+    @PutMapping("/user/{id}")
+    public ResponseEntity<User> updateUser(@PathVariable String id, @RequestBody User updatedUser) {
+        for (User user : testUsers) {
+            if (user.getId().equals(id)) {
+                // Update user fields with the new values
+                user.setName(updatedUser.getName());
+                user.setPassword(updatedUser.getPassword());
+                user.setEmail(updatedUser.getEmail());
+                user.setRole(updatedUser.getRole());
+                return ResponseEntity.ok(user);  // Return the updated user information
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return 404 if user is not found
+    }
+
+    // Delete a user by ID
+    @DeleteMapping("/user/{id}")
+    public ResponseEntity<String> deleteUser(@PathVariable String id) {
+        for (Iterator<User> iterator = testUsers.iterator(); iterator.hasNext(); ) {
+            User user = iterator.next();
+            if (user.getId().equals(id)) {
+                iterator.remove();  // Remove the user from the list
+                return ResponseEntity.ok("User deleted successfully");  // Return success message
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // Return 404 if user is not found
+    }
+
+
     @GetMapping("/bucket")
     public ResponseEntity<List<String>> getBuckets() {
         InfluxDBClient client = influxdbRepository.getInfluxDBClient();
@@ -101,7 +170,7 @@ public class ApiController {
             // query for buckets
             BucketsApi bucketsApi = client.getBucketsApi();
             List<Bucket> buckets = bucketsApi.findBuckets();
-            for (Bucket b: buckets) {
+            for (Bucket b : buckets) {
                 // filter start with "_" buckets,
                 // because these buckets are influx default buckets, like "_tasks", "_monitoring"
                 // they are used by influx db system, should not be seen.
@@ -112,13 +181,11 @@ public class ApiController {
                 // get bucket name here
                 bucketNames.add(b.getName());
             }
-        }
-        catch (UnauthorizedException e) {
+        } catch (UnauthorizedException e) {
             return ResponseEntity
                     .internalServerError()
                     .body(Collections.singletonList("Connect to influxDB failed."));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
         }
@@ -126,9 +193,9 @@ public class ApiController {
     }
 
 
-
     /**
      * Get specific bucket's measurements.
+     *
      * @param bucket
      * @return
      */
@@ -144,16 +211,16 @@ public class ApiController {
 
         List<String> measures = new ArrayList<>();
         String flux = "import \"regexp\"\n"
-                + "  from(bucket: \""+bucket+"\")\n"
-                +"  |> range(start: -30000d, stop: now())\n"
-                +"  |> filter(fn: (r) => true)\n"
-                +"  |> keep(columns: [\"_measurement\"])\n"
-                +"  |> group()\n"
-                +"            |> distinct(column: \"_measurement\")\n"
-                +"  |> limit(n: 1000)\n"
-                +"  |> sort()\n";
+                + "  from(bucket: \"" + bucket + "\")\n"
+                + "  |> range(start: -30000d, stop: now())\n"
+                + "  |> filter(fn: (r) => true)\n"
+                + "  |> keep(columns: [\"_measurement\"])\n"
+                + "  |> group()\n"
+                + "            |> distinct(column: \"_measurement\")\n"
+                + "  |> limit(n: 1000)\n"
+                + "  |> sort()\n";
 
-        System.out.println("Query for measurements: "+flux);
+        System.out.println("Query for measurements: " + flux);
 
         try {
             QueryApi queryApi = client.getQueryApi();
@@ -165,8 +232,7 @@ public class ApiController {
                     measures.add((String) fluxRecord.getValueByKey("_value"));
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ResponseEntity.ok(measures);
@@ -316,6 +382,7 @@ public class ApiController {
 
     /**
      * Get specific measurement's fields.
+     *
      * @param bucket
      * @param measurement
      * @return
@@ -332,16 +399,16 @@ public class ApiController {
         List<String> fields = new ArrayList<>();
         String flux = "\nimport \"regexp\""
                 + "\n"
-                + "\n  from(bucket: \""+bucket+"\")"
+                + "\n  from(bucket: \"" + bucket + "\")"
                 + "\n  |> range(start: -30000d, stop: now())"
-                + "\n  |> filter(fn: (r) => (r[\"_measurement\"] == \""+measurement+"\"))"
+                + "\n  |> filter(fn: (r) => (r[\"_measurement\"] == \"" + measurement + "\"))"
                 + "\n  |> keep(columns: [\"_field\"])"
                 + "\n  |> group()"
                 + "\n  |> distinct(column: \"_field\")"
                 + "\n  |> limit(n: 1000)"
                 + "\n  |> sort()";
 
-        System.out.println("Query for fields: "+flux);
+        System.out.println("Query for fields: " + flux);
 
         try {
             QueryApi queryApi = client.getQueryApi();
@@ -353,10 +420,15 @@ public class ApiController {
                     fields.add((String) fluxRecord.getValueByKey("_value"));
                 }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return ResponseEntity.ok(fields);
+    }
+
+    @GetMapping("/getInfo")
+    public ResponseEntity<?> getInfluxInfo() {
+        JSONArray influxInfo = apiService.getInfluxInfo();
+        return ResponseEntity.ok(influxInfo.toString());
     }
 }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
     Container,
     Box,
@@ -30,9 +31,8 @@ function Login() {
         event.preventDefault();
         console.log('Username:', username);
         console.log('Password:', password);
-
         try {
-            const response = await axios.post("http://localhost:1808/api/login", {
+            await axios.post("http://localhost:1808/api/login", {
                 username,
                 password
             })
@@ -40,17 +40,16 @@ function Login() {
                     if (response.status === 200) {
                         const token = response.data.jwt;
                         localStorage.setItem('token', token);
+                        const name = response.data.userName
+                        localStorage.setItem('name', name);
                         console.log("Login successful");
-                        setSuccessMessage("Login successful!");
                         setErrorMessage("");
-                        // alert('Login successful');
-                        // window.location.href = '/dashboardnew'
+                        alert('Login successful');
+                        window.location.href = '/dashboardnew'
                     }
                 })
         } catch (error) {
             setErrorMessage("Incorrect username or password");
-            setSuccessMessage("");
-
         }
     };
     const handleSubmit = (e) => {

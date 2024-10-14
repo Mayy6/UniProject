@@ -23,6 +23,10 @@
   gap: 10px;
 }
 
+.welcome-string {
+  color: white;
+}
+
 .login-btn {
   margin-right: 10px !important;
 }
