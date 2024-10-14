@@ -101,10 +101,11 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
 
   const generateTagsAndFields = (measurement, tabIndex) => {
     const selectedFile = tabs[tabIndex].selectedFile;
-    fetch(`/dataset/${selectedFile}.json`)
-      .then((response) => response.json())
+    // fetch(`/dataset/${selectedFile}.json`)
+    axios.get("http://localhost:1808/api/getInfo")
+      // .then((response) => response.json())
       .then((data) => {
-        const selectedData = data.find(item => item._measurement === measurement);
+        const selectedData = data.data.find(item => item._measurement === measurement);
         if (selectedData) {
           const newTags = selectedData.tags.map((tag) => {
             return Object.keys(tag).map(key => `${measurement}.${key}`);
