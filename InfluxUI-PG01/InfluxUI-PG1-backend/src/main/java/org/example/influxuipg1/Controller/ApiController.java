@@ -65,17 +65,23 @@ public class ApiController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<?> createToken(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         String username = authRequest.getUsername();
         String password = authRequest.getPassword();
-        User user = apiService.selectUserByName(username);
 
-        if (user == null) {
-            return new ResponseEntity<>("User not found", HttpStatus.UNAUTHORIZED);
+        // call validateUserLogin to verify
+        boolean isValidUser = apiService.validateUserLogin(username, password);
 
+        if (isValidUser) {
+            // login successful
+            String token = jwtTokenUtil.generateToken(username);
+
+            // return jwt token
+            return ResponseEntity.ok(new AuthResponse(token, username));
+        } else {
+            // if username or password incorrect return info
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Username or password incorrect");
         }
-        String token = jwtTokenUtil.generateToken(username);
-        return ResponseEntity.ok(new AuthResponse(token,username));
     }
 
     @PostMapping("/query/grafana")
