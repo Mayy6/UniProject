@@ -10,6 +10,7 @@ import DroppableArea from './DroppableArea';
 import TabsManager from './TabsManager';
 import QueryGenerator from './QueryGenerator';
 import { useFluxQuery } from '../FluxQueryContext';
+import axios from "axios";
 
 const DragDropPage = ({ onQueryAction, onSecondAction }) => {
   const [tabs, setTabs] = useState([createNewTab(1)]);
@@ -63,21 +64,25 @@ const DragDropPage = ({ onQueryAction, onSecondAction }) => {
   const currentTab = tabs[activeTabIndex];
 
   const loadBucketFiles = (tabIndex) => {
-    fetch('/dataset/buckets.json')
-      .then((response) => response.json())
+    axios.get("http://localhost:1808/api/bucket")
+      // .then((response) => response.json())
       .then((data) => {
         const updatedTabs = [...tabs];
-        updatedTabs[tabIndex].bucketFiles = data.buckets;
+        updatedTabs[tabIndex].bucketFiles = data.data;
+        console.log(data)
         setTabs(updatedTabs);
       })
       .catch((error) => console.error('Error loading buckets.json:', error));
   };
 
   const loadDataFromFile = (fileName, tabIndex) => {
-    fetch(`/dataset/${fileName}.json`)
-      .then((response) => response.json())
+    axios.get("http://localhost:1808/api/getInfo")
+    // fetch(`/dataset/${fileName}.json`)
+    //   .then((response) => response.json())
+    //     .then((response) => JSON.parse(response.data))
       .then((data) => {
-        const allMeasurements = data.map((item) => item._measurement);
+        console.log(data)
+        const allMeasurements = data.data.map((item) => item._measurement);
         const updatedTabs = [...tabs];
         updatedTabs[tabIndex].measurements = allMeasurements;
         updatedTabs[tabIndex].rightMeasurements = [];

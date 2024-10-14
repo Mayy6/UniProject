@@ -14,8 +14,8 @@ public class InfluxdbRepository {
      */
     public InfluxDBClient getInfluxDBClient() {
         String hostUrl = "http://localhost:8086";
-        char[] token = "0QQ9rrYuBMhfKGk3wBKjxL0dBBHnzsuTfc6K6zhUcd5-uJmlmgalFPbNF9hjl-wE_ixZavehxQX2HZoUN6kebA==".toCharArray();
-        String org = "f569ebf7d29af181";
+        char[] token = "kNtl8iOvTBQQcl_8h37O_jlPHYJDHdT-lxZ6r0wYD6mIH8_II9nr4TX7wEJc221r9rV7m1saWK4GfrzFvLExrQ==".toCharArray();
+        String org = "sepOrg";
         if (null == _influxClient) {
             try {
                 _influxClient = InfluxDBClientFactory.create(hostUrl, token, org);

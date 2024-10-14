@@ -4,6 +4,7 @@ import com.influxdb.client.BucketsApi;
 import com.influxdb.client.InfluxDBClient;
 import org.example.influxuipg1.Model.*;
 import org.example.influxuipg1.Service.GrafanaService;
+import org.json.JSONArray;
 import org.springframework.http.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -423,5 +424,11 @@ public class ApiController {
             e.printStackTrace();
         }
         return ResponseEntity.ok(fields);
+    }
+
+    @GetMapping("/getInfo")
+    public ResponseEntity<?> getInfluxInfo() {
+        JSONArray influxInfo = apiService.getInfluxInfo();
+        return ResponseEntity.ok(influxInfo.toString());
     }
 }
