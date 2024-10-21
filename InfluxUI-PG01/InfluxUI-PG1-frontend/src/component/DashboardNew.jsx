@@ -13,6 +13,8 @@ const DashboardNew = () => {
     }
     const [grafanaUrl, setGrafanaUrl] = useState("");
     const [showGraph, setShowGraph] = useState(false);
+    const [graphType, setGraphType] = useState("line"); // Default graph type is line
+
     const handleFirstAction = (query) => {
         console.log(query)
         // const submit = "from(bucket: \"sepBucket\")\n" +
@@ -24,7 +26,9 @@ const DashboardNew = () => {
         const submit = query;
         try {
             axios.post("http://localhost:1808/api/query/grafana", {
-                submit
+                submit,
+                graphType // Pass the selected graph type to the backend
+
             })
                 .then(response => {
                     if (response.status === 200) {
@@ -76,8 +80,25 @@ const DashboardNew = () => {
                     flexBasis: '50%',
                     padding: '10px',
                     borderBottom: '1px solid #ccc',
+                    position: 'relative',
+
                 }}
             >
+        {/* Dropdown for Selecting Graph Type */}
+          <Box style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+            <Select
+                value={graphType}
+                onChange={(e) => setGraphType(e.target.value)} // Update selected graph type
+                style={{ marginBottom: '20px' }}
+            >
+                <MenuItem value="line">Graph</MenuItem>
+                <MenuItem value="table">Table</MenuItem>
+                <MenuItem value="bar">Bar Chart</MenuItem>
+                <MenuItem value="gauge">Gauge</MenuItem>
+                <MenuItem value="heatmap">Heatmap</MenuItem>
+            </Select>
+            </Box>
+                
                 <Typography variant="h6">Graph Area</Typography>
                 {showGraph ? (
                     <iframe src={grafanaUrl}
