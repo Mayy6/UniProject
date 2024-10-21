@@ -18,16 +18,20 @@ import java.util.regex.Pattern;
 @Service
 public class GrafanaService {
 
-    public String  createGrafanaDashboard(String key,String username, String query) throws IOException, InterruptedException {
+    public String  createGrafanaDashboard(String key,String username, String query, String graphType) throws IOException, InterruptedException {
         String url = "http://localhost:3000/api/dashboards/db";
         String string = UUID.randomUUID().toString();
         query = query.replaceAll("\"","\\\\\"").replace("\n","");
+        
+        // Available graph types
+        String panelType = getPanelType(graphType);
+        
         String dashboardJson = "{\n" +
                 "    \"dashboard\": {\n" +
                 "        \"title\": \""+username+"\",\n" +
                 "        \"panels\": [\n" +
                 "            {\n" +
-                "                \"type\": \"graph\",\n" +
+                "                \"type\": \"" + panelType + "\",\n" +
                 "                \"title\": \"Test Panel\",\n" +
                 "                \"datasource\": \"InfluxDB\",\n" +
                 "                \"targets\": [\n" +
@@ -69,6 +73,21 @@ public class GrafanaService {
         return extractUidFromResponse(responseBody);
     }
 
+    // This method returns the panel type based on user's selection
+    private String getPanelType(String graphType) {
+        switch (graphType.toLowerCase()) {
+            case "table":
+                return "table";
+            case "bar":
+                return "barchart";
+            case "gauge":
+                return "gauge";
+            case "heatmap":
+                return "heatmap";
+            default:
+                return "graph"; // Default to line graph
+        }
+    }
 
     private String extractUidFromResponse(String responseBody) {
         Pattern pattern = Pattern.compile("\"uid\":\"([^\"]+)\"");
