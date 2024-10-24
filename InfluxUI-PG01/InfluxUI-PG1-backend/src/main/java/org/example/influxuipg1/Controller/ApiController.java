@@ -88,7 +88,7 @@ public class ApiController {
     @PostMapping("/query/grafana")
     public ResponseEntity<?> queryGrafana(@RequestBody Query query) throws IOException, InterruptedException {
         String userName = apiService.currentUserName();
-        String grafanaDashboard = grafanaService.createGrafanaDashboard("glsa_vMTmHF9gTWMK1jJb1m3bDcUsD3SiaHkn_1c50ef07",userName,query.getSubmit(), query.getGraphType());
+        String grafanaDashboard = grafanaService.createGrafanaDashboard("glsa_vMTmHF9gTWMK1jJb1m3bDcUsD3SiaHkn_1c50ef07",userName,query.getSubmit());
         String url = "http://localhost:3000/d-solo/"+grafanaDashboard+"/"+userName+"?panelId=1&theme=light";
         return ResponseEntity.ok(url);
     }

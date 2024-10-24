@@ -5,5 +5,4 @@ import lombok.Data;
 @Data
 public class Query {
     String submit;
-    String graphType;
 }
