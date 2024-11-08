@@ -154,7 +154,7 @@ class InfluxUiPg1ApplicationTests {
             Instant now = Instant.now();
             Point[] points = new Point[200];
             for (int i = 0; i < 100; i++) {
-                Point point = Point.measurement("sepTest")
+                Point point = Point.measurement("grafanaTest")
                         .addTag("location", "Portland")
                         .addTag("tag_test", "test1")
                         .time(now.minusSeconds(i), WritePrecision.S)
@@ -162,7 +162,7 @@ class InfluxUiPg1ApplicationTests {
                 points[i] = point;
             }
             for (int i = 100; i < 200; i++) {
-                Point point = Point.measurement("sepTest")
+                Point point = Point.measurement("grafanaTest")
                         .addTag("location", "Queensland")
                         .time(now.minusSeconds(i), WritePrecision.S)
                         .addField("bees", i-50);

@@ -15,12 +15,6 @@ const DashboardNew = () => {
     const [showGraph, setShowGraph] = useState(false);
     const handleFirstAction = (query) => {
         console.log(query)
-        // const submit = "from(bucket: \"sepBucket\")\n" +
-        //     "  |> range(start: -40d, stop: -12m)\n" +
-        //     "  |> filter(fn: (r) => r[\"_measurement\"] == \"grafanaTest\")\n" +
-        //     "  |> filter(fn: (r) => r[\"_field\"] == \"ants\" or r[\"_field\"] == \"bees\")\n" +
-        //     "  |> filter(fn: (r) => r[\"location\"] == \"Portland\" or r[\"location\"] == \"Queensland\")\n" +
-        //     "  |> yield(name: \"mean\")";
         const submit = query;
         try {
             axios.post("http://localhost:1808/api/query/grafana", {
