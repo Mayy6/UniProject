@@ -71,8 +71,13 @@ const DashboardNew = () => {
                     flexBasis: '50%',
                     padding: '10px',
                     borderBottom: '1px solid #ccc',
+                    position: 'relative',
+
                 }}
             >
+        {/* Dropdown for Selecting Graph Type */}
+          <Box style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
+            </Box>
                 <Typography variant="h6">Graph Area</Typography>
                 {showGraph ? (
                     <iframe src={grafanaUrl}

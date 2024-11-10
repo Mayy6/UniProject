@@ -22,6 +22,7 @@ public class GrafanaService {
         String url = "http://localhost:3000/api/dashboards/db";
         String string = UUID.randomUUID().toString();
         query = query.replaceAll("\"","\\\\\"").replace("\n","");
+        
         String dashboardJson = "{\n" +
                 "    \"dashboard\": {\n" +
                 "        \"title\": \""+username+"\",\n" +
@@ -68,7 +69,6 @@ public class GrafanaService {
         String responseBody = response.body();
         return extractUidFromResponse(responseBody);
     }
-
 
     private String extractUidFromResponse(String responseBody) {
         Pattern pattern = Pattern.compile("\"uid\":\"([^\"]+)\"");
