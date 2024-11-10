@@ -13,12 +13,13 @@ const DashboardNew = () => {
     }
     const [grafanaUrl, setGrafanaUrl] = useState("");
     const [showGraph, setShowGraph] = useState(false);
-    const handleFirstAction = (query) => {
+    const handleFirstAction = (query,data) => {
         console.log(query)
         const submit = query;
+        const type = data;
         try {
             axios.post("http://localhost:1808/api/query/grafana", {
-                submit
+                submit,type
             })
                 .then(response => {
                     if (response.status === 200) {
