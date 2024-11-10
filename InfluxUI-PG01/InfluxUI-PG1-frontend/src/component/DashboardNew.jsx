@@ -13,19 +13,13 @@ const DashboardNew = () => {
     }
     const [grafanaUrl, setGrafanaUrl] = useState("");
     const [showGraph, setShowGraph] = useState(false);
-
-    const handleFirstAction = (query) => {
+    const handleFirstAction = (query,data) => {
         console.log(query)
-        // const submit = "from(bucket: \"sepBucket\")\n" +
-        //     "  |> range(start: -40d, stop: -12m)\n" +
-        //     "  |> filter(fn: (r) => r[\"_measurement\"] == \"grafanaTest\")\n" +
-        //     "  |> filter(fn: (r) => r[\"_field\"] == \"ants\" or r[\"_field\"] == \"bees\")\n" +
-        //     "  |> filter(fn: (r) => r[\"location\"] == \"Portland\" or r[\"location\"] == \"Queensland\")\n" +
-        //     "  |> yield(name: \"mean\")";
         const submit = query;
+        const type = data;
         try {
             axios.post("http://localhost:1808/api/query/grafana", {
-                submit
+                submit,type
             })
                 .then(response => {
                     if (response.status === 200) {
@@ -83,7 +77,7 @@ const DashboardNew = () => {
             >
         {/* Dropdown for Selecting Graph Type */}
           <Box style={{ position: 'absolute', top: 0, left: 0, zIndex: 1 }}>
-            </Box> 
+            </Box>
                 <Typography variant="h6">Graph Area</Typography>
                 {showGraph ? (
                     <iframe src={grafanaUrl}

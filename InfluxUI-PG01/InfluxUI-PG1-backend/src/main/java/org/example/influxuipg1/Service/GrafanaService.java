@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 @Service
 public class GrafanaService {
 
-    public String  createGrafanaDashboard(String key,String username, String query) throws IOException, InterruptedException {
+    public String  createGrafanaDashboard(String key,String username, String query, String type) throws IOException, InterruptedException {
         String url = "http://localhost:3000/api/dashboards/db";
         String string = UUID.randomUUID().toString();
         query = query.replaceAll("\"","\\\\\"").replace("\n","");
@@ -28,7 +28,7 @@ public class GrafanaService {
                 "        \"title\": \""+username+"\",\n" +
                 "        \"panels\": [\n" +
                 "            {\n" +
-                "                \"type\": \"graph\",\n" +
+                "                \"type\": \"" + type + "\",\n" +
                 "                \"title\": \"Test Panel\",\n" +
                 "                \"datasource\": \"InfluxDB\",\n" +
                 "                \"targets\": [\n" +

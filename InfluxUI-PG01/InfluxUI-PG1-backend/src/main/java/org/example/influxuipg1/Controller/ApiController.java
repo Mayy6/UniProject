@@ -2,6 +2,8 @@ package org.example.influxuipg1.Controller;
 
 import com.influxdb.client.BucketsApi;
 import com.influxdb.client.InfluxDBClient;
+import com.influxdb.client.InfluxDBClientFactory;
+import com.influxdb.query.FluxColumn;
 import org.example.influxuipg1.Model.*;
 import org.example.influxuipg1.Service.GrafanaService;
 import org.json.JSONArray;
@@ -21,7 +23,11 @@ import org.example.influxuipg1.Util.JwtTokenUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @RestController
@@ -88,9 +94,62 @@ public class ApiController {
     @PostMapping("/query/grafana")
     public ResponseEntity<?> queryGrafana(@RequestBody Query query) throws IOException, InterruptedException {
         String userName = apiService.currentUserName();
-        String grafanaDashboard = grafanaService.createGrafanaDashboard("glsa_vMTmHF9gTWMK1jJb1m3bDcUsD3SiaHkn_1c50ef07",userName,query.getSubmit());
+        String grafanaDashboard = grafanaService.createGrafanaDashboard("glsa_vMTmHF9gTWMK1jJb1m3bDcUsD3SiaHkn_1c50ef07",userName,query.getSubmit(),query.getType());
         String url = "http://localhost:3000/d-solo/"+grafanaDashboard+"/"+userName+"?panelId=1&theme=light";
         return ResponseEntity.ok(url);
+    }
+
+    @PostMapping("query/download")
+    public ResponseEntity<?> queryDownload(@RequestBody Query query) throws IOException, InterruptedException {
+//        char[] token = "kNtl8iOvTBQQcl_8h37O_jlPHYJDHdT-lxZ6r0wYD6mIH8_II9nr4TX7wEJc221r9rV7m1saWK4GfrzFvLExrQ==".toCharArray();
+        String org = "sepOrg";
+        String hostUrl = "http://localhost:8086";
+        try (InfluxDBClient client = InfluxDBClientFactory.create(hostUrl, "yuanyinkai", "yuanyinkai".toCharArray())) {
+            QueryApi influxQLQueryApi = client.getQueryApi();
+            List<FluxTable> tables = influxQLQueryApi.query(query.getSubmit(), org);
+            ArrayList<ArrayList<String>> list = new ArrayList<>();
+            for (int j = 0; j < tables.size(); j++) {
+                ArrayList<String> headList = new ArrayList<>();
+                for (FluxColumn column : tables.get(j).getColumns()) {
+                    headList.add(column.getLabel());
+                }
+                list.add(headList);
+//                for (int i = 0; i < .size(); i++) {
+//                    ArrayList<String> list1 = new ArrayList<>();
+//                    list1.add(tables.get(j).getRecords().get(i).getRow().toString());
+//                }
+                for (FluxRecord record : tables.get(j).getRecords()) {
+                    ArrayList<String> recordList = new ArrayList<>();
+                    for (Object o : record.getRow()) {
+                        recordList.add(o.toString());
+                    }
+                    list.add(recordList);
+                }
+                ArrayList<String> objects = new ArrayList<>();
+                objects.add("\n");
+                list.add(objects);
+            }
+
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                 PrintWriter writer = new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8))) {
+
+                for (List<String> row : list) {
+                    writer.println(String.join(",", row));
+                }
+                writer.flush();
+
+                byte[] csvBytes = outputStream.toByteArray();
+
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.TEXT_PLAIN);
+                headers.setContentDispositionFormData("attachment", "data.csv");
+
+                return new ResponseEntity<>(csvBytes, headers, HttpStatus.OK);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
     }
 
     @PostMapping("/query")
